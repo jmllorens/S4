@@ -35,12 +35,24 @@
 #include <limits>
 
 
-int GenEpsilon(const S4_Simulation *S, const S4_Layer *L, const int n, std::complex<double> *Epsilon2, std::complex<double> *Epsilon_inv){
+int GenEpsilon(
+	const S4_Simulation *S, const S4_Layer *L,
+	const int n, S4_complex *Epsilon2, S4_complex *Epsilon_inv,
+	S4_real *shift
+){
+	int ret = 0;
 	const int n2 = 2*n;
 	const int *G = S->G;
 	S4_complex *ivalues = (S4_complex*)S4_malloc(sizeof(S4_complex)*2*5*S->n_materials);
 	S4_complex *values = ivalues + 5*S->n_materials;
 
+	const bool invsym = L->pat->InversionSymmetric(shift);
+	if(!invsym){
+		shift[0] = 0;
+		shift[1] = 0;
+	}else{
+		ret |= GENEPSILON_REAL;
+	}
 	S4_TRACE("I  Closed-form epsilon\n");
 
 	// Get all the dielectric tensors
@@ -73,13 +85,13 @@ int GenEpsilon(const S4_Simulation *S, const S4_Layer *L, const int n, std::comp
 	const S4_real unit_cell_size = Simulation_GetUnitCellSize(S);
 
 	if(!have_tensor){
-		L->pat->SetTagToValueMap((std::complex<double>*)values, 1);
+		L->pat->SetTagToValueMap((S4_complex*)values, 1);
 		// Make Epsilon in upper left block of Epsilon2
 		for(int j = 0; j < n; ++j){
 			for(int i = 0; i < n; ++i){
 				int dG[2] = {G[2*i+0]-G[2*j+0],G[2*i+1]-G[2*j+1]};
 				S4_complex ft;
-				L->pat->FourierSeries(S->Lk, 1, dG, &ft);
+				L->pat->FourierSeries(S->Lk, 1, dG, &ft, shift);
 				if(S->options.use_Lanczos_smoothing){
 					double f[2] = {
 						dG[0] * S->Lk[0] + dG[1] * S->Lk[2],
@@ -94,12 +106,12 @@ int GenEpsilon(const S4_Simulation *S, const S4_Layer *L, const int n, std::comp
 		S4_TRACE("I  Epsilon(0,0) = %f,%f [omega=%f]\n", Epsilon2[0].real(), Epsilon2[0].imag(), S->omega[0]);
 
 		if(0 == S->Lr[2] && 0 == S->Lr[3]){ // 1D proper FFF rule
-			L->pat->SetTagToValueMap((std::complex<double>*)ivalues, 1);
+			L->pat->SetTagToValueMap((S4_complex*)ivalues, 1);
 			for(int j = 0; j < n; ++j){
 				for(int i = 0; i < n; ++i){
 					int dG[2] = {G[2*i+0]-G[2*j+0],G[2*i+1]-G[2*j+1]};
-					std::complex<double> ft;
-					L->pat->FourierSeries(S->Lk, 1, dG, &ft);
+					S4_complex ft;
+					L->pat->FourierSeries(S->Lk, 1, dG, &ft, shift);
 					if(S->options.use_Lanczos_smoothing){
 						double f[2] = {
 							dG[0] * S->Lk[0] + dG[1] * S->Lk[2],
@@ -116,6 +128,7 @@ int GenEpsilon(const S4_Simulation *S, const S4_Layer *L, const int n, std::comp
 			RNP::TBLAS::SetMatrix<'A'>(n,n, 0.,1., Epsilon_inv,n);
 			RNP::TBLAS::CopyMatrix<'A'>(n,n,&Epsilon2[0+0*n2],n2, &Epsilon2[n+0*n2],n2); // use lower block for temp storage; will be cleaned up later
 			RNP::LinearSolve<'N'>(n,n, &Epsilon2[n+0*n2],n2, Epsilon_inv,n, NULL, NULL);
+			ret |= GENEPSILON_BLK2;
 		}else{
 			// Upper block of diagonal of Epsilon2 is already Epsilon
 			RNP::TBLAS::CopyMatrix<'A'>(n,n,&Epsilon2[0+0*n2],n2, &Epsilon2[n+n*n2],n2);
@@ -144,24 +157,23 @@ int GenEpsilon(const S4_Simulation *S, const S4_Layer *L, const int n, std::comp
 				values[3*ldv+(i+1)] = eps_temp;
 				values[4*ldv+(i+1)] = eps_temp;
 			}else{
-				S4_complex eps_temp(M->eps.s[0], M->eps.s[1]);
 				// We must transpose the values array here, as well as transpose the tensor since the abcde is stored row-major, while we will traverse in column major
-				values[0*ldv+i+1] = S4_complex(M->eps.abcde[0], M->eps.abcde[1]);
-				values[1*ldv+i+1] = S4_complex(M->eps.abcde[4], M->eps.abcde[5]);
-				values[2*ldv+i+1] = S4_complex(M->eps.abcde[2], M->eps.abcde[3]);
-				values[3*ldv+i+1] = S4_complex(M->eps.abcde[6], M->eps.abcde[7]);
+				values[0*ldv+i+1] = S4_complex(M->eps.abcde[6], M->eps.abcde[7]);
+				values[1*ldv+i+1] = -S4_complex(M->eps.abcde[2], M->eps.abcde[3]);
+				values[2*ldv+i+1] = -S4_complex(M->eps.abcde[4], M->eps.abcde[5]);
+				values[3*ldv+i+1] = S4_complex(M->eps.abcde[0], M->eps.abcde[1]);
 				values[4*ldv+i+1] = S4_complex(M->eps.abcde[8], M->eps.abcde[9]);
 			}
 		}
 
 		for(int k = -1; k < 4; ++k){
-			L->pat->SetTagToValueMap((std::complex<double>*)&values[(k+1)*ldv], 1);
+			L->pat->SetTagToValueMap((S4_complex*)&values[(k+1)*ldv], 1);
 			if(-1 == k){
 				for(int j = 0; j < n; ++j){
 					for(int i = 0; i < n; ++i){
 						int dG[2] = {G[2*i+0]-G[2*j+0],G[2*i+1]-G[2*j+1]};
-						std::complex<double> ft;
-						L->pat->FourierSeries(S->Lk, 1, dG, &ft);
+						S4_complex ft;
+						L->pat->FourierSeries(S->Lk, 1, dG, &ft, shift);
 						if(S->options.use_Lanczos_smoothing){
 							double f[2] = {
 								dG[0] * S->Lk[0] + dG[1] * S->Lk[2],
@@ -181,8 +193,8 @@ int GenEpsilon(const S4_Simulation *S, const S4_Layer *L, const int n, std::comp
 				for(int j = 0; j < n; ++j){
 					for(int i = 0; i < n; ++i){
 						int dG[2] = {G[2*i+0]-G[2*j+0],G[2*i+1]-G[2*j+1]};
-						std::complex<double> ft;
-						L->pat->FourierSeries(S->Lk, 1, dG, &ft);
+						S4_complex ft;
+						L->pat->FourierSeries(S->Lk, 1, dG, &ft, shift);
 						if(S->options.use_Lanczos_smoothing){
 							double f[2] = {
 								dG[0] * S->Lk[0] + dG[1] * S->Lk[2],
@@ -200,5 +212,5 @@ int GenEpsilon(const S4_Simulation *S, const S4_Layer *L, const int n, std::comp
 
 	S4_free(ivalues);
 
-	return 0;
+	return ret;
 }
