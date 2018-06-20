@@ -845,99 +845,127 @@ static PyObject *S4Sim_SetRegionCircle(S4Sim *self, PyObject *args, PyObject *kw
 }
 static PyObject *S4Sim_SetRegionEllipse(S4Sim *self, PyObject *args, PyObject *kwds){
 	static char *kwlist[] = { "S4_Layer", "S4_Material", "Center", "Angle", "Halfwidths", NULL };
-	S4_Layer *layer;
-	S4_Material *M;
+	S4_LayerID layer;
+	S4_MaterialID M;
 	const char *layername;
 	const char *matname;
-	int material_index;
 	double center[2], tilt, halfwidths[2];
 	int ret;
 
 	if(!PyArg_ParseTupleAndKeywords(args, kwds, "ss(dd)d(dd):SetRegionEllipse", kwlist, &layername, &matname, &center[0], &center[1], &tilt, &halfwidths[0], &halfwidths[1])){ return NULL; }
-	layer = Simulation_GetLayerByName(self->S, layername, NULL);
-	if(NULL == layer){
+	layer = S4_Simulation_GetLayerByName(self->S, layername);
+	if(layer < 0){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionEllipse: S4_Layer named '%s' not found.", layername);
-		return NULL;
+		return 0;
 	}
-	if(NULL != layer->copy){
+	if(S4_Layer_IsCopy(self->S, layer)){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionEllipse: Cannot pattern a layer copy.");
-		return NULL;
+		return 0;
 	}
-	M = Simulation_GetMaterialByName(self->S, matname, &material_index);
-	if(NULL == M){
+	M = S4_Simulation_GetMaterialByName(self->S, matname);
+	if(M < 0){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionEllipse: S4_Material named '%s' not found.", matname);
-		return NULL;
+		return 0;
 	}
-	ret = Simulation_AddLayerPatternEllipse(self->S, layer, material_index, center, (M_PI/180.)*tilt, halfwidths);
+	/*ret = Simulation_AddLayerPatternEllipse(self->S, layer, material_index, center, (M_PI/180.)*tilt, halfwidths);*/
+        S4_real angle = (M_PI/180.0)*tilt;
+	ret = S4_Layer_SetRegionHalfwidths(self->S, layer, M, S4_REGION_TYPE_ELLIPSE, halfwidths, center, &angle);
 	if(0 != ret){
 		PyErr_Format(PyExc_MemoryError, "SetRegionEllipse: There was a problem allocating the pattern.");
-		return NULL;
+		return 0;
 	}
 	Py_RETURN_NONE;
 }
 static PyObject *S4Sim_SetRegionRectangle(S4Sim *self, PyObject *args, PyObject *kwds){
 	static char *kwlist[] = { "S4_Layer", "S4_Material", "Center", "Angle", "Halfwidths", NULL };
-	S4_Layer *layer;
-	S4_Material *M;
+	S4_LayerID layer;
+	S4_MaterialID M;
 	const char *layername;
 	const char *matname;
-	int material_index;
 	double center[2], tilt, halfwidths[2];
 	int ret;
 
 	if(!PyArg_ParseTupleAndKeywords(args, kwds, "ss(dd)d(dd):SetRegionRectangle", kwlist, &layername, &matname, &center[0], &center[1], &tilt, &halfwidths[0], &halfwidths[1])){ return NULL; }
-	layer = Simulation_GetLayerByName(self->S, layername, NULL);
-	if(NULL == layer){
+	layer = S4_Simulation_GetLayerByName(self->S, layername);
+	if(layer < 0){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionRectangle: S4_Layer named '%s' not found.", layername);
-		return NULL;
+		return 0;
 	}
-	if(NULL != layer->copy){
+	if(S4_Layer_IsCopy(self->S, layer)){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionRectangle: Cannot pattern a layer copy.");
-		return NULL;
+		return 0;
 	}
-	M = Simulation_GetMaterialByName(self->S, matname, &material_index);
-	if(NULL == M){
+	M = S4_Simulation_GetMaterialByName(self->S, matname);
+	if(M < 0){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionRectangle: S4_Material named '%s' not found.", matname);
-		return NULL;
+		return 0;
 	}
-	ret = Simulation_AddLayerPatternRectangle(self->S, layer, material_index, center, (M_PI/180.)*tilt, halfwidths);
+	/*ret = Simulation_AddLayerPatternRectangle(self->S, layer, material_index, center, (M_PI/180.)*tilt, halfwidths);*/
+
+        S4_real angle = (M_PI/180.0)*tilt;
+
+        // In the new API the region Rectangle is for 2D and Interval for 1D. Ones needs to check
+        // the dimension of the lattice. The program checks that Lr[1:3] is equal zero to determine
+        // the dimensions.
+        S4_real Lr[4];
+        S4_Simulation_GetLattice(self->S, Lr);
+        int lattice1d = 0;
+        if(0 == Lr[1] && 0 == Lr[2] && 0 == Lr[3]){
+                lattice1d = 1;
+        }
+        int AUX_REGION;
+        AUX_REGION = S4_REGION_TYPE_RECTANGLE;
+        if(lattice1d){
+                AUX_REGION = S4_REGION_TYPE_INTERVAL;
+        }
+
+	ret = S4_Layer_SetRegionHalfwidths(
+		/*self->S, layer, M, S4_REGION_TYPE_RECTANGLE, halfwidths, center, &angle*/
+		self->S, layer, M, AUX_REGION, halfwidths, center, &angle
+	);
+
 	if(0 != ret){
 		PyErr_Format(PyExc_MemoryError, "SetRegionRectangle: There was a problem allocating the pattern.");
-		return NULL;
+		return 0;
 	}
 	Py_RETURN_NONE;
 }
 static PyObject *S4Sim_SetRegionPolygon(S4Sim *self, PyObject *args, PyObject *kwds){
 	static char *kwlist[] = { "S4_Layer", "S4_Material", "Center", "Angle", "Vertices", NULL };
-	S4_Layer *layer;
-	S4_Material *M;
+	S4_LayerID layer;
+	S4_MaterialID M;
 	const char *layername;
 	const char *matname;
-	int material_index;
+	/*int material_index;*/
 	double center[2], tilt;
 	struct polygon_converter_data polydata;
 	int ret;
 
 	if(!PyArg_ParseTupleAndKeywords(args, kwds, "ss(dd)dO&:SetRegionPolygon", kwlist, &layername, &matname, &center[0], &center[1], &tilt, &polygon_converter, &polydata)){ return NULL; }
-	layer = Simulation_GetLayerByName(self->S, layername, NULL);
-	if(NULL == layer){
+	layer = S4_Simulation_GetLayerByName(self->S, layername);
+	if(layer < 0){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionPolygon: S4_Layer named '%s' not found.", layername);
-		return NULL;
+		return 0;
 	}
-	if(NULL != layer->copy){
+	if(S4_Layer_IsCopy(self->S, layer)){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionPolygon: Cannot pattern a layer copy.");
-		return NULL;
+		return 0;
 	}
-	M = Simulation_GetMaterialByName(self->S, matname, &material_index);
-	if(NULL == M){
+	M = S4_Simulation_GetMaterialByName(self->S, matname);
+	if(M < 0){
 		PyErr_Format(PyExc_RuntimeError, "SetRegionPolygon: S4_Material named '%s' not found.", matname);
-		return NULL;
+		return 0;
 	}
-	ret = Simulation_AddLayerPatternPolygon(self->S, layer, material_index, center, (M_PI/180.)*tilt, polydata.nvert, polydata.vert);
+
+        S4_real angle = (M_PI/180.0)*tilt;
+	/*ret = Simulation_AddLayerPatternPolygon(self->S, layer, material_index, center, (M_PI/180.)*tilt, polydata.nvert, polydata.vert);*/
+	ret = S4_Layer_SetRegionVertices(
+		self->S, layer, M, S4_REGION_TYPE_POLYGON,
+		polydata.nvert, polydata.vert, center, &angle);
 	free(polydata.vert);
 	if(0 != ret){
 		PyErr_Format(PyExc_MemoryError, "SetRegionPolygon: There was a problem allocating the pattern.");
-		return NULL;
+		return 0;
 	}
 	Py_RETURN_NONE;
 }

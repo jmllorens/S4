@@ -5,6 +5,10 @@ LIBFILE="$2"
 
 cat <<SETUPPY > setup.py
 from distutils.core import setup, Extension
+import os
+
+os.environ['CC'] = '/usr/bin/gcc'
+os.environ['LDSHARED'] = '/usr/bin/gcc -shared'
 
 S4module = Extension('S4',
 	sources = [
@@ -12,12 +16,21 @@ S4module = Extension('S4',
 	],
 	libraries = [
 		'S4',
-		'stdc++'
+		'stdc++',
+                'openblas',
+                'gfortran',
+                'cholmod',
+                'amd',
+                'colamd',
+                'camd',
+                'ccolamd',
+                'fftw3' 
 	],
 	library_dirs = ['$OBJDIR'],
 	extra_link_args = [
 		'$LIBFILE'
-	]
+	], 
+	extra_compile_args = ["-std=c99"],
 )
 
 setup(name = 'S4',
