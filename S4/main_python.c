@@ -694,7 +694,7 @@ static PyObject *S4Sim_AddMaterial(S4Sim *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *S4Sim_AddLayer(S4Sim *self, PyObject *args, PyObject *kwds){
-	static char *kwlist[] = { "Name", "Thickness", "S4_Material", NULL };
+	static char *kwlist[] = { "Name", "Thickness", "Material", NULL };
 	S4_LayerID layer;
 	const char *name;
 	S4_real thickness;
@@ -725,7 +725,7 @@ static PyObject *S4Sim_AddLayer(S4Sim *self, PyObject *args, PyObject *kwds){
 
 static PyObject *S4Sim_SetLayer(S4Sim *self, PyObject *args, PyObject *kwds)
 {
-	static char *kwlist[] = { "Name", "Thickness", "S4_Material", NULL };
+	static char *kwlist[] = { "Name", "Thickness", "Material", NULL };
 	const char *name, *material = NULL;
 	double thickness;
 	S4_LayerID layer;
@@ -753,7 +753,7 @@ static PyObject *S4Sim_SetLayer(S4Sim *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *S4Sim_AddLayerCopy(S4Sim *self, PyObject *args, PyObject *kwds){
-	static char *kwlist[] = { "Name", "Thickness", "S4_Layer", NULL };
+	static char *kwlist[] = { "Name", "Thickness", "Layer", NULL };
 	S4_LayerID layer;
 	const char *name;
 	double thickness;
@@ -774,7 +774,7 @@ static PyObject *S4Sim_AddLayerCopy(S4Sim *self, PyObject *args, PyObject *kwds)
 	Py_RETURN_NONE;
 }
 static PyObject *S4Sim_SetLayerThickness(S4Sim *self, PyObject *args, PyObject *kwds){
-	static char *kwlist[] = { "S4_Layer", "Thickness", NULL };
+	static char *kwlist[] = { "Layer", "Thickness", NULL };
 	S4_Layer *layer;
 	const char *name;
 	double thickness;
@@ -794,7 +794,7 @@ static PyObject *S4Sim_SetLayerThickness(S4Sim *self, PyObject *args, PyObject *
 	Py_RETURN_NONE;
 }
 static PyObject *S4Sim_RemoveLayerRegions(S4Sim *self, PyObject *args, PyObject *kwds){
-	static char *kwlist[] = { "S4_Layer", NULL };
+	static char *kwlist[] = { "Layer", NULL };
 	S4_Layer *layer;
 	const char *name;
 
@@ -810,7 +810,7 @@ static PyObject *S4Sim_RemoveLayerRegions(S4Sim *self, PyObject *args, PyObject 
 	Py_RETURN_NONE;
 }
 static PyObject *S4Sim_SetRegionCircle(S4Sim *self, PyObject *args, PyObject *kwds){
-	static char *kwlist[] = { "S4_Layer", "S4_Material", "Center", "Radius", NULL };
+	static char *kwlist[] = { "Layer", "Material", "Center", "Radius", NULL };
 	S4_LayerID layer;
 	S4_MaterialID M;
 	const char *layername;
@@ -844,7 +844,7 @@ static PyObject *S4Sim_SetRegionCircle(S4Sim *self, PyObject *args, PyObject *kw
 	Py_RETURN_NONE;
 }
 static PyObject *S4Sim_SetRegionEllipse(S4Sim *self, PyObject *args, PyObject *kwds){
-	static char *kwlist[] = { "S4_Layer", "S4_Material", "Center", "Angle", "Halfwidths", NULL };
+	static char *kwlist[] = { "Layer", "Material", "Center", "Angle", "Halfwidths", NULL };
 	S4_LayerID layer;
 	S4_MaterialID M;
 	const char *layername;
@@ -877,7 +877,7 @@ static PyObject *S4Sim_SetRegionEllipse(S4Sim *self, PyObject *args, PyObject *k
 	Py_RETURN_NONE;
 }
 static PyObject *S4Sim_SetRegionRectangle(S4Sim *self, PyObject *args, PyObject *kwds){
-	static char *kwlist[] = { "S4_Layer", "S4_Material", "Center", "Angle", "Halfwidths", NULL };
+	static char *kwlist[] = { "Layer", "Material", "Center", "Angle", "Halfwidths", NULL };
 	S4_LayerID layer;
 	S4_MaterialID M;
 	const char *layername;
@@ -931,7 +931,7 @@ static PyObject *S4Sim_SetRegionRectangle(S4Sim *self, PyObject *args, PyObject 
 	Py_RETURN_NONE;
 }
 static PyObject *S4Sim_SetRegionPolygon(S4Sim *self, PyObject *args, PyObject *kwds){
-	static char *kwlist[] = { "S4_Layer", "S4_Material", "Center", "Angle", "Vertices", NULL };
+	static char *kwlist[] = { "Layer", "Material", "Center", "Angle", "Vertices", NULL };
 	S4_LayerID layer;
 	S4_MaterialID M;
 	const char *layername;
@@ -1079,7 +1079,7 @@ static PyObject *S4Sim_GetEpsilon(S4Sim *self, PyObject *args){
 
 static PyObject *S4Sim_OutputLayerPatternRealization(S4Sim *self, PyObject *args, PyObject *kwds)
 {
-	static char *kwlist[] = { "S4_Layer", "Nu", "Nv", "Filename", NULL };
+	static char *kwlist[] = { "Layer", "Nu", "Nv", "Filename", NULL };
 	const char *layerName;
 	const char *fileName = NULL;
 	int Nu, Nv;
@@ -1120,7 +1120,7 @@ static PyObject *S4Sim_OutputLayerPatternRealization(S4Sim *self, PyObject *args
 
 static PyObject *S4Sim_OutputLayerPatternPostscript(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret;
-	static char *kwlist[] = { "S4_Layer", "Filename", NULL };
+	static char *kwlist[] = { "Layer", "Filename", NULL };
 	const char *layername;
 	const char *filename = NULL;
 	S4_Layer *layer;
@@ -1208,7 +1208,7 @@ static PyObject *S4Sim_GetBasisSet(S4Sim *self, PyObject *args){
 static PyObject *S4Sim_GetAmplitudes(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret, n, i, j;
 	int *G;
-	static char *kwlist[] = { "S4_Layer", "zOffset", NULL };
+	static char *kwlist[] = { "Layer", "zOffset", NULL };
 	const char *layername;
 	double offset = 0;
 	double *amp;
@@ -1245,7 +1245,7 @@ static PyObject *S4Sim_GetAmplitudes(S4Sim *self, PyObject *args, PyObject *kwds
 }
 static PyObject *S4Sim_GetPowerFlux(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret;
-	static char *kwlist[] = { "S4_Layer", "zOffset", NULL };
+	static char *kwlist[] = { "Layer", "zOffset", NULL };
 	const char *layername;
 	S4_real offset = 0;
 	S4_real power[4];
@@ -1272,7 +1272,7 @@ static PyObject *S4Sim_GetPowerFlux(S4Sim *self, PyObject *args, PyObject *kwds)
 static PyObject *S4Sim_GetPowerFluxByOrder(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret, n, i;
 	int *G;
-	static char *kwlist[] = { "S4_Layer", "zOffset", NULL };
+	static char *kwlist[] = { "Layer", "zOffset", NULL };
 	const char *layername;
 	double offset = 0;
 	double *power;
@@ -1308,7 +1308,7 @@ static PyObject *S4Sim_GetPowerFluxByOrder(S4Sim *self, PyObject *args, PyObject
 }
 static PyObject *S4Sim_GetStressTensorIntegral(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret;
-	static char *kwlist[] = { "S4_Layer", "zOffset", NULL };
+	static char *kwlist[] = { "Layer", "zOffset", NULL };
 	const char *layername;
 	double offset = 0;
 	double Tint[6];
@@ -1336,7 +1336,7 @@ static PyObject *S4Sim_GetStressTensorIntegral(S4Sim *self, PyObject *args, PyOb
 }
 static PyObject *S4Sim_GetLayerVolumeIntegral(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret;
-	static char *kwlist[] = { "S4_Layer", "Quantity", NULL };
+	static char *kwlist[] = { "Layer", "Quantity", NULL };
 	const char *layername;
 	const char *strwhat;
 	double integral[2];
@@ -1374,7 +1374,7 @@ static PyObject *S4Sim_GetLayerVolumeIntegral(S4Sim *self, PyObject *args, PyObj
 }
 static PyObject *S4Sim_GetLayerZIntegral(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret;
-	static char *kwlist[] = { "S4_Layer", "xy", NULL };
+	static char *kwlist[] = { "Layer", "xy", NULL };
 	const char *layername;
 	double integral[6], r[2];
 	S4_Layer *layer;
@@ -2041,7 +2041,7 @@ static PyObject *S4_NewInterpolator(PyObject *self, PyObject *args, PyObject *kw
 //didn't finished yet
 static PyObject *S4_SolveInParallel(PyObject *Self, PyObject *args, PyObject *kwds)
 {
-	static char *kwlist[] = {"S4_Layer", "Simulations", NULL};
+	static char *kwlist[] = {"Layer", "Simulations", NULL};
 	const char *layerName;
 	//S4_solve_in
 	Py_RETURN_NONE;
