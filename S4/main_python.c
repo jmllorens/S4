@@ -67,7 +67,7 @@ static double AsNumberPyNumber(PyObject *obj){
 	}
 #if PY_MAJOR_VERSION < 3
 	else if(PyInt_Check(obj)){
-		return (double)PyInt_AsLong(obj);
+		return (double)PyLong_AsLong(obj);
 	}
 #endif
 	return -1.0;
@@ -103,7 +103,7 @@ static int CheckPyInt(PyObject *obj){
 }
 static long GetPyInt(PyObject *obj){
 #if PY_MAJOR_VERSION < 3
-	return PyInt_AsLong(obj);
+	return PyLong_AsLong(obj);
 #else
 	return PyLong_AsLong(obj);
 #endif
@@ -339,16 +339,16 @@ int excitation_converter(PyObject *obj, S4Excitation_Data *data)
 			PyErr_SetString(PyExc_TypeError, "the G index must be a integer.");
 			return 0;
 		}
-		data->exg[2 * i + 0] = PyInt_AsLong(pj);
+		data->exg[2 * i + 0] = PyLong_AsLong(pj);
 
 		//get polarization: 'x' or 'y'
 		pj = PyTuple_GetItem(pi, 1);
-		if(!PyString_Check(pj))
+		if(!PyBytes_Check(pj))
 		{
 			PyErr_SetString(PyExc_TypeError, "polalization should be specified by 'x' or 'y'.");
 			return 0;
 		}
-		PyString_AsStringAndSize(pj, &pol, &polLen);
+		PyBytes_AsStringAndSize(pj, &pol, &polLen);
 		if(1 != polLen || ('x' != pol[0] && 'y' != pol[0]))
 		{
 			PyErr_SetString(PyExc_TypeError, "polalization should be specified by 'x' or 'y'.");
