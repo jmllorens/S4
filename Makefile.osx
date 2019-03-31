@@ -233,44 +233,44 @@ $(OBJDIR)/S4r/predicates.o: S4r/predicates.c
 	
 #### Lua Frontend
 
-$(OBJDIR)/S4k/main_lua.o: S4/main_lua.c objdir
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@
+#$(OBJDIR)/S4k/main_lua.o: S4/main_lua.c objdir
+	#$(CC) -c $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@
 
-S4lua: $(OBJDIR)/S4k/main_lua.o $(S4_LIBNAME) sampler
-	$(CXX) $(CFLAGS) $(CPPFLAGS) $< -o $(S4_BINNAME) $(S4_LIBNAME) $(LIBS) $(LUA_LIB)
+#S4lua: $(OBJDIR)/S4k/main_lua.o $(S4_LIBNAME) sampler
+	#$(CXX) $(CFLAGS) $(CPPFLAGS) $< -o $(S4_BINNAME) $(S4_LIBNAME) $(LIBS) $(LUA_LIB)
 
-$(OBJDIR)/S4r/main_lua.o: S4r/main_lua.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@
-$(OBJDIR)/S4r/lua_named_arg.o: S4r/lua_named_arg.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@
-$(OBJDIR)/S4r/S4r.o: S4r/S4r.cpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@
-S4rlua: objdir $(OBJDIR)/S4r/main_lua.o $(OBJDIR)/S4r/lua_named_arg.o $(OBJDIR)/S4r/S4r.o $(S4r_LIBNAME)
-	$(CXX) $(CFLAGS) $(CPPFLAGS) $(OBJDIR)/S4r/main_lua.o $(OBJDIR)/S4r/lua_named_arg.o $(OBJDIR)/S4r/S4r.o -o $@ $(S4r_LIBNAME) $(LIBS) $(LUA_LIB)
+#$(OBJDIR)/S4r/main_lua.o: S4r/main_lua.c
+	#$(CC) -c $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@
+#$(OBJDIR)/S4r/lua_named_arg.o: S4r/lua_named_arg.c
+	#$(CC) -c $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@
+#$(OBJDIR)/S4r/S4r.o: S4r/S4r.cpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@
+#S4rlua: objdir $(OBJDIR)/S4r/main_lua.o $(OBJDIR)/S4r/lua_named_arg.o $(OBJDIR)/S4r/S4r.o $(S4r_LIBNAME)
+	#$(CXX) $(CFLAGS) $(CPPFLAGS) $(OBJDIR)/S4r/main_lua.o $(OBJDIR)/S4r/lua_named_arg.o $(OBJDIR)/S4r/S4r.o -o $@ $(S4r_LIBNAME) $(LIBS) $(LUA_LIB)
 
-sampler: FunctionSampler1D.so FunctionSampler2D.so
-FunctionSampler1D.so: modules/function_sampler_1d.c modules/function_sampler_1d.h modules/lua_function_sampler_1d.c
-	gcc -c $(OPTFLAGS) -fpic -Wall -I. modules/function_sampler_1d.c -o $(OBJDIR)/modules/function_sampler_1d.o
-	gcc $(OPTFLAGS) -bundle -undefined dynamic_lookup -fpic -Wall $(LUA_INC) -o $(OBJDIR)/FunctionSampler1D.so $(OBJDIR)/modules/function_sampler_1d.o modules/lua_function_sampler_1d.c 
-FunctionSampler2D.so: modules/function_sampler_2d.c modules/function_sampler_2d.h modules/lua_function_sampler_2d.c
-	gcc -c $(OPTFLAGS) -fpic -Wall -I. modules/function_sampler_2d.c -o $(OBJDIR)/modules/function_sampler_2d.o
-	gcc -c -O2 -fpic -Wall -I. modules/predicates.c -o $(OBJDIR)/modules/mod_predicates.o
-	gcc $(OPTFLAGS) -bundle -undefined dynamic_lookup -fpic -Wall $(LUA_INC) -o $(OBJDIR)/FunctionSampler2D.so $(OBJDIR)/modules/function_sampler_2d.o $(OBJDIR)/modules/mod_predicates.o modules/lua_function_sampler_2d.c
+#sampler: FunctionSampler1D.so FunctionSampler2D.so
+#FunctionSampler1D.so: modules/function_sampler_1d.c modules/function_sampler_1d.h modules/lua_function_sampler_1d.c
+	#gcc -c $(OPTFLAGS) -fpic -Wall -I. modules/function_sampler_1d.c -o $(OBJDIR)/modules/function_sampler_1d.o
+	#gcc $(OPTFLAGS) -bundle -undefined dynamic_lookup -fpic -Wall $(LUA_INC) -o $(OBJDIR)/FunctionSampler1D.so $(OBJDIR)/modules/function_sampler_1d.o modules/lua_function_sampler_1d.c 
+#FunctionSampler2D.so: modules/function_sampler_2d.c modules/function_sampler_2d.h modules/lua_function_sampler_2d.c
+	#gcc -c $(OPTFLAGS) -fpic -Wall -I. modules/function_sampler_2d.c -o $(OBJDIR)/modules/function_sampler_2d.o
+	#gcc -c -O2 -fpic -Wall -I. modules/predicates.c -o $(OBJDIR)/modules/mod_predicates.o
+	#gcc $(OPTFLAGS) -bundle -undefined dynamic_lookup -fpic -Wall $(LUA_INC) -o $(OBJDIR)/FunctionSampler2D.so $(OBJDIR)/modules/function_sampler_2d.o $(OBJDIR)/modules/mod_predicates.o modules/lua_function_sampler_2d.c
 
 
 
-#### Python extension
+##### Python extension
 
-S4_pyext: objdir $(S4_LIBNAME)
-	echo "$(LIBS)" > $(OBJDIR)/tmp.txt
-	sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME)
-	python setup.py build
+#S4_pyext: objdir $(S4_LIBNAME)
+	##echo "$(LIBS)" > $(OBJDIR)/tmp.txt
+	##sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME)
+	##python setup.py build
 
 #### R extension
 
-S4_R_frontend: objdir $(S4_LIBNAME)
-	R CMD BUILD RCWA
-	R CMD INSTALL RCWA
+#S4_R_frontend: objdir $(S4_LIBNAME)
+	#R CMD BUILD RCWA
+	#R CMD INSTALL RCWA
 
 #################################################
 
