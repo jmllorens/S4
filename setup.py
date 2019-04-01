@@ -9,10 +9,18 @@ import platform
 if platform.system() == 'Linux':
     libs = ['S4', 'stdc++']
     libs.extend([lib[2::] for lib in '-lblas -llapack -lfftw3'.split()])
+    extra_link_args = ['./build/libS4.a']
     Makefile='Makefile.linux' 
+
 elif platform.system() =='Darwin':
-    libs = ['S4', 'c++']
-    libs.extend([lib[2::] for lib in '-lblas -llapack -lfftw3'.split()])
+    if int(platform.mac_ver()[0].split('.')[1]) >= 14:
+        libs = ['S4', 'c++']
+    else:
+        ## Need for Mojave
+        libs = ['S4', 'stdc++']
+
+    extra_link_args = ['./build/libS4.a', '-Wl,-framework', '-Wl,Accelerate']
+
     Makefile='Makefile.osx' 
 else:
     print(platform.system())
@@ -22,8 +30,9 @@ S4module = setuptools.extension.Extension('S4',
                       sources = [ 'S4/main_python.c' ],
                       libraries = libs,
                       library_dirs = ['./build'],
-                      extra_link_args = ['./build/libS4.a'],
-                      extra_compile_args=['-std=gnu99'],)
+                      # extra_link_args = ['./build/libS4.a'],
+                      extra_link_args = extra_link_args,
+                      extra_compile_args = ['-std=gnu99'],)
 
 S4module.Makefile=Makefile
 
@@ -37,7 +46,7 @@ class alt_build_ext(build_ext, object):
 
     def build_extension(self, ext):
 
-        if ext.name!=self.special_extension:
+        if ext.name != self.special_extension:
             super(alt_build_ext, self).build_extension(ext)
         else:
             sources = ext.sources
