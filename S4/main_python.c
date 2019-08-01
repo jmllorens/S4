@@ -996,6 +996,30 @@ static PyObject *S4Sim_SetExcitationExterior(S4Sim *self, PyObject *args, PyObje
 
 static PyObject *S4Sim_SetExcitationPlanewave(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret;
+	static char *kwlist[] = { "K-vector", "Position", "Moment", NULL };
+	double kvector[3];
+	double positin[3];
+        double moment[6];
+	Py_complex cs, cp;
+	Py_ssize_t order = 0;
+	cs.real = 0; cs.imag = 0;
+	cp.real = 0; cp.imag = 0;
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "(dd)|DDn:SetExcitationPlanewave", kwlist, &angle[0], &angle[1], &cs, &cp, &order)){ return NULL; }
+
+	pol_s[0] = sqrt(cs.real*cs.real + cs.imag*cs.imag); pol_s[1] = atan2(cs.imag,cs.real);
+	pol_p[0] = sqrt(cp.real*cp.real + cp.imag*cp.imag); pol_p[1] = atan2(cp.imag,cp.real);
+	angle[0] *= (M_PI/180.);
+	angle[1] *= (M_PI/180.);
+	ret = Simulation_MakeExcitationPlanewave(self->S, angle, pol_s, pol_p, order);
+	if(0 != ret){
+		HandleSolutionErrorCode("SetExcitationPlanewave", ret);
+		return NULL;
+	}
+	Py_RETURN_NONE;
+}
+
+static PyObject *S4Sim_SetExcitationPlanewave(S4Sim *self, PyObject *args, PyObject *kwds){
+	int ret;
 	static char *kwlist[] = { "IncidenceAngles", "sAmplitude", "pAmplitude", "Order", NULL };
 	double angle[2];
 	double pol_s[2], pol_p[2];
