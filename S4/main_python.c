@@ -994,27 +994,39 @@ static PyObject *S4Sim_SetExcitationExterior(S4Sim *self, PyObject *args, PyObje
 	Py_RETURN_NONE;
 }
 
-static PyObject *S4Sim_SetExcitationPlanewave(S4Sim *self, PyObject *args, PyObject *kwds){
+static PyObject *S4Sim_SetExcitationDipole(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret;
-	static char *kwlist[] = { "K-vector", "Position", "Moment", NULL };
-	double kvector[3];
-	double positin[3];
-        double moment[6];
-	Py_complex cs, cp;
-	Py_ssize_t order = 0;
-	cs.real = 0; cs.imag = 0;
-	cp.real = 0; cp.imag = 0;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "(dd)|DDn:SetExcitationPlanewave", kwlist, &angle[0], &angle[1], &cs, &cp, &order)){ return NULL; }
+	static char *kwlist[] = { "Layer", "Kvector", "Position", "Moment", "AmplitudePhase", NULL };
+	const char *layerName;
+	double kvector[2];
+	double position[2];
+	double moment[6];
+	double ampphase[2];
+	/*Py_complex momentx, momenty, momentz;*/
+	/*momentx.real  = 0;  momentx.imag  = 0;*/
+	/*momenty.real  = 0;  momenty.imag  = 0;*/
+	/*momentz.real  = 0;  momentz.imag  = 0;*/
+	/*ampphase.real = 0;  ampphase.imag = 0;*/
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "s(ddd)(ddd)(ddd)(dd):SetExcitationDipole",
+                                kwlist, &layerName,
+                                &kvector[0], &kvector[1], &position[0], &position[1],
+                                &moment[0], &moment[1], &moment[2],
+                                &ampphase[0], &ampphase[1])){ return NULL; }
 
-	pol_s[0] = sqrt(cs.real*cs.real + cs.imag*cs.imag); pol_s[1] = atan2(cs.imag,cs.real);
-	pol_p[0] = sqrt(cp.real*cp.real + cp.imag*cp.imag); pol_p[1] = atan2(cp.imag,cp.real);
-	angle[0] *= (M_PI/180.);
-	angle[1] *= (M_PI/180.);
-	ret = Simulation_MakeExcitationPlanewave(self->S, angle, pol_s, pol_p, order);
+        
+        double imomentlen = 1. / hypot(hypot(moment[0], moment[1]), moment[2]);
+        moment[4] = (moment[2] * imomentlen) * ampphase[0];
+        moment[5] = (moment[2] * imomentlen) * ampphase[1];
+        moment[2] = (moment[1] * imomentlen) * ampphase[0];
+        moment[3] = (moment[1] * imomentlen) * ampphase[1];
+        moment[0] = (moment[0] * imomentlen) * ampphase[0];
+        moment[1] = (moment[0] * imomentlen) * ampphase[1];
+	ret = S4_Simulation_ExcitationDipole(self->S, kvector, layerName, position, moment);
 	if(0 != ret){
-		HandleSolutionErrorCode("SetExcitationPlanewave", ret);
+		HandleSolutionErrorCode("SetExcitationDipole", ret);
 		return NULL;
 	}
+
 	Py_RETURN_NONE;
 }
 
