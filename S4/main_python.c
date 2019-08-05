@@ -1007,7 +1007,7 @@ static PyObject *S4Sim_SetExcitationDipole(S4Sim *self, PyObject *args, PyObject
 	/*momenty.real  = 0;  momenty.imag  = 0;*/
 	/*momentz.real  = 0;  momentz.imag  = 0;*/
 	/*ampphase.real = 0;  ampphase.imag = 0;*/
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "s(ddd)(ddd)(ddd)(dd):SetExcitationDipole",
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "s(dd)(dd)(ddd)(dd):SetExcitationDipole",
                                 kwlist, &layerName,
                                 &kvector[0], &kvector[1], &position[0], &position[1],
                                 &moment[0], &moment[1], &moment[2],
@@ -1885,6 +1885,7 @@ static PyMethodDef S4Sim_methods[] = {
 	{"SetRegionEllipse"			, (PyCFunction)S4Sim_SetRegionEllipse, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SetLayerPatternEllipse(layer,matname,center,angle,halfwidths) -> None")},
 	{"SetRegionRectangle"		, (PyCFunction)S4Sim_SetRegionRectangle, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SetLayerPatternRectangle(layer,matname,center,angle,halfwidths) -> None")},
 	{"SetRegionPolygon"			, (PyCFunction)S4Sim_SetRegionPolygon, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SetLayerPatternPolygon(layer,matname,center,angle,vertices) -> None")},
+	{"SetExcitationDipole"	, (PyCFunction)S4Sim_SetExcitationDipole, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SetExcitationDipole(layer,Kvector,Position,Moment,AmplitudePhase) -> None")},
 	{"SetExcitationPlanewave"	, (PyCFunction)S4Sim_SetExcitationPlanewave, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SetExcitationPlanewave(angles,s_amp,p_amp) -> None")},
 	{"SetExcitationExterior"	, (PyCFunction)S4Sim_SetExcitationExterior, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SetExcitationExterior(Excitations) -> None")},
 	{"SetFrequency"				, (PyCFunction)S4Sim_SetFrequency, METH_VARARGS, PyDoc_STR("SetFrequency(freq) -> None")},
