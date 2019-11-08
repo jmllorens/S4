@@ -10,8 +10,8 @@
 #   LAPACK_LIB = -framework vecLib
 #  On Fedora: dnf install openblas-devel
 #  On Debian and Fedora, with reference BLAS and Lapack (slow)
-BLAS_LIB = -lblas
-LAPACK_LIB = -llapack
+BLAS_LIB = -lopenblas
+LAPACK_LIB = -lopenblas
 #  NOTE: on Fedora, need to link blas and lapack properly, where X.X.X is some version numbers
 #  Linking Command Example: sudo ln -s /usr/lib64/liblapack.so.X.X.X /usr/lib64/liblapack.so
 #  blas Example: sudo ln -s /usr/lib64/libopeblas64.so.X.X.X /usr/lib64/libblas.so
@@ -48,10 +48,8 @@ PTHREAD_LIB = -lpthread
 # Typically, if installed:
 #CHOLMOD_INC = -I/usr/include/suitesparse
 #CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
-#CHOLMOD_INC = -I/usr/include/suitesparse
-#CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
-CHOLMOD_LIB=
-CHOLMOD_INC=
+CHOLMOD_INC = -I/usr/include/suitesparse
+CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
 
 # Specify the MPI library
 # For example, on Fedora: dnf  install openmpi-devel

@@ -8,7 +8,7 @@ import platform
 
 if platform.system() == 'Linux':
     libs = ['S4', 'stdc++']
-    libs.extend([lib[2::] for lib in '-lblas -llapack -lfftw3'.split()])
+    libs.extend([lib[2::] for lib in '-lopenblas -lcholmod -lamd -lcolamd -lcamd -lccolamd -lfftw3'.split()])
     extra_link_args = ['./build/libS4.a']
     Makefile='Makefile.linux' 
 
