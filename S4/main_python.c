@@ -2062,7 +2062,7 @@ PyDoc_STRVAR(module_doc, "Stanford Stratified Structure Solver (S4): Fourier Mod
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef S4_module = {
 	PyModuleDef_HEAD_INIT,
-	"S4",
+	"S42",
 	module_doc,
 	sizeof(struct module_state),
 	S4_funcs,
@@ -2072,7 +2072,7 @@ static struct PyModuleDef S4_module = {
 	NULL
 };
 #define INITERROR return NULL
-PyObject * PyInit_S4(void)
+PyObject * PyInit_S42(void)
 #else
 #define INITERROR return
 PyMODINIT_FUNC initS4(void)

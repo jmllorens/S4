@@ -10,7 +10,7 @@ import os
 os.environ['CC'] = '/usr/bin/gcc'
 os.environ['LDSHARED'] = '/usr/bin/gcc -shared'
 
-S4module = Extension('S4',
+S4module = Extension('S42',
 	sources = [
 		'S4/main_python.c'
 	],
@@ -33,7 +33,7 @@ S4module = Extension('S4',
 	extra_compile_args = ["-std=c99"],
 )
 
-setup(name = 'S4',
+setup(name = 'S42',
 	version = '1.1',
 	description = 'Stanford Stratified Structure Solver (S4): Fourier Modal Method',
 	ext_modules = [S4module]
