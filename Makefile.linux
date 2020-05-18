@@ -119,7 +119,7 @@ objdir:
 	mkdir -p $(OBJDIR)
 	mkdir -p $(OBJDIR)/S4k
 	#mkdir -p $(OBJDIR)/S4r
-	mkdir -p $(OBJDIR)/modules
+	#mkdir -p $(OBJDIR)/modules
 	
 S4_LIBOBJS = \
 	$(OBJDIR)/S4k/S4.o \
