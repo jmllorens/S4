@@ -35,10 +35,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include "S4.h"
-#include "convert.h"
-#include "SpectrumSampler.h"
 #include "cubature.h"
-#include "Interpolator.h"
+//#include "convert.h"
+//#include "SpectrumSampler.h"
+//#include "Interpolator.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -177,17 +177,17 @@ typedef struct{
 	Simulation S;
 } S4Sim;
 
-typedef struct
-{
-	PyObject_HEAD
-	Interpolator I;
-}S4Interpolator;
+//typedef struct
+//{
+//	PyObject_HEAD
+//	Interpolator I;
+//}S4Interpolator;
 
-typedef struct
-{
-	PyObject_HEAD
-	SpectrumSampler SpecS;
-}S4SpectrumSampler;
+//typedef struct
+//{
+//	PyObject_HEAD
+//	SpectrumSampler SpecS;
+//}S4SpectrumSampler;
 
 /*
 Description: this structure is defined to be used for argument convert function.
@@ -195,12 +195,12 @@ Description: this structure is defined to be used for argument convert function.
 			 API.
 Note: the 'xy' pointer's resource is heap allocated, remember to free it.
 */
-typedef struct
-{
-	int n;
-	int ny;
-	double *xy;
-}S4Interpolator_Data;
+//typedef struct
+//{
+//	int n;
+//	int ny;
+//	double *xy;
+//}S4Interpolator_Data;
 
 /*
 Description: the use of this structure is similar as structure 'S4Interpolator_Data'.
@@ -218,20 +218,20 @@ Description: the use is same as structure 'S4Interpolator_Data'.
 			 But the members' name is same as the arguments of
 			 python API(ignore case).
 */
-typedef struct
-{
-	double freqStart;
-	double freqEnd;
-	int initialNumPoints;
-	double rangeThreshold;
-	double maxBend;
-	double minimumSpacing;
-	Bool parallelize;
-}S4SpectrumSampler_Data;
+//typedef struct
+//{
+//	double freqStart;
+//	double freqEnd;
+//	int initialNumPoints;
+//	double rangeThreshold;
+//	double maxBend;
+//	double minimumSpacing;
+//	Bool parallelize;
+//}S4SpectrumSampler_Data;
 
 static PyTypeObject S4Sim_Type;
-static PyTypeObject S4Interpolator_Type;
-static PyTypeObject S4SpectrumSampler_Type;
+//static PyTypeObject S4Interpolator_Type;
+//static PyTypeObject S4SpectrumSampler_Type;
 
 int bool_converter(PyObject *obj, int *b){
 	if(PyBool_Check(obj)){
@@ -482,131 +482,131 @@ int polygon_converter(PyObject *obj, struct polygon_converter_data *data){
 /*
 Description: the use is similar to excitation_converter().
 */
-static int interpolator_table_converter(PyObject *args, S4Interpolator_Data *data)
-{
-	PyObject *pi, *pj;
-	if(NULL == data)
-		return 0;
-	if(!PyTuple_Check(args))
-	{
-		PyErr_SetString(PyExc_TypeError, "the 'Table' argument isn't a tuple.");
-		return 0;
-	}
+//static int interpolator_table_converter(PyObject *args, S4Interpolator_Data *data)
+//{
+//	PyObject *pi, *pj;
+//	if(NULL == data)
+//		return 0;
+//	if(!PyTuple_Check(args))
+//	{
+//		PyErr_SetString(PyExc_TypeError, "the 'Table' argument isn't a tuple.");
+//		return 0;
+//	}
+//
+//	data->n = PyTuple_Size(args);
+//	if(0 == data->n)
+//	{
+//		PyErr_SetString(PyExc_TypeError, "the 'Table' argument can't be empty");
+//		return 0;
+//	}
+//	for(int i = 0, ld = data->ny + 1; i < data->n; i++)
+//	{
+//		pi = PyTuple_GetItem(args, i);
+//		if(2 != PyTuple_Size(pi))
+//		{
+//			PyErr_SetString(PyExc_TypeError, "a the 'Table' should be like:((x, (y1, y2,...)), (x, (y1, y2,...)),...)");
+//			return 0;
+//		}
+//		pj = PyTuple_GetItem(pi, 1);
+//		if(!PyTuple_Check(pj))
+//		{
+//			PyErr_SetString(PyExc_TypeError, "the 'Table' should be like:((x, (y1, y2,...)), (x, (y1, y2,...)),...)");
+//			return 0;
+//		}
+//
+//		if(NULL == data->xy)
+//		{
+//			data->ny = PyTuple_Size(pj);
+//			return 1;
+//		}
+//		data->xy[i*ld + 0] = PyFloat_AsDouble(PyTuple_GetItem(pi, 0));
+//		for(int j = 0; j < data->ny; j++)
+//			data->xy[i*ld + j + 1] = PyFloat_AsDouble(PyTuple_GetItem(pj, j));
+//	}
+//	return 1;
+//}
+//
+//static PyObject *S4Interpolator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+//{
+//	static char *kwlist[] = {"Type", "Table", NULL};
+//	const char *typeName;
+//	S4Interpolator *self;
+//	S4Interpolator_Data interData = {0, 0, NULL};
+//	if(!PyArg_ParseTupleAndKeywords(args, kwds, "sO&:interpolator_new", kwlist, &typeName, &interpolator_table_converter, &interData))
+//		return NULL;
+//	interData.xy = (double*)malloc(sizeof(double) * interData.n * (interData.ny + 1));
+//	if(!PyArg_ParseTupleAndKeywords(args, kwds, "sO&:interpolator_new", kwlist, &typeName, &interpolator_table_converter, &interData))
+//	{
+//		free(interData.xy); interData.xy = NULL;
+//		return NULL;
+//	}
+//
+//	self = (S4Interpolator*)type->tp_alloc(type, 0);
+//	if(NULL != self)
+//	{
+//		Interpolator_type inter_type;
+//		if(0 == strcmp("linear", typeName))
+//			inter_type = Interpolator_LINEAR;
+//		else if(0 == strcmp("cublic spline", typeName))
+//			inter_type = Interpolator_CUBIC_SPLINE;
+//		else if(0 == strcmp("cubic hermite spline", typeName))
+//			inter_type = Interpolator_CUBIC_HERMITE_SPLINE;
+//		else
+//		{
+//			PyErr_SetString(PyExc_TypeError, "the 'type' should be 'linear'/'cubic spline'/'cubic hermite spline'.");
+//			free(interData.xy); interData.xy = NULL;
+//			return NULL;
+//		}
+//		self->I = Interpolator_New(interData.n, interData.ny, interData.xy, inter_type);
+//	}
+//	free(interData.xy); interData.xy = NULL;
+//	return (PyObject*)self;
+//}
+//
+//static PyObject *S4Interpolator_Get(S4Interpolator *self, PyObject *args, PyObject *kwds)
+//{
+//	static char *kwlist[] = {"X", NULL};
+//	double x;
+//	double *ys;
+//	int ny;
+//	PyObject *ret;
+//	if(!PyArg_ParseTupleAndKeywords(args, kwds, "d:Get", kwlist, &x))
+//		return NULL;
+//	ys = Interpolator_Get(self->I, x, &ny);
+//	if(NULL == ys)
+//		Py_RETURN_NONE;
+//	ret = PyTuple_New(ny);
+//	for(int i = 0; i < ny; i++)
+//		PyTuple_SetItem(ret, i, Py_BuildValue("d", ys[i]));
+//	return ret;
+//}
 
-	data->n = PyTuple_Size(args);
-	if(0 == data->n)
-	{
-		PyErr_SetString(PyExc_TypeError, "the 'Table' argument can't be empty");
-		return 0;
-	}
-	for(int i = 0, ld = data->ny + 1; i < data->n; i++)
-	{
-		pi = PyTuple_GetItem(args, i);
-		if(2 != PyTuple_Size(pi))
-		{
-			PyErr_SetString(PyExc_TypeError, "a the 'Table' should be like:((x, (y1, y2,...)), (x, (y1, y2,...)),...)");
-			return 0;
-		}
-		pj = PyTuple_GetItem(pi, 1);
-		if(!PyTuple_Check(pj))
-		{
-			PyErr_SetString(PyExc_TypeError, "the 'Table' should be like:((x, (y1, y2,...)), (x, (y1, y2,...)),...)");
-			return 0;
-		}
+//static PyObject *S4SpectrumSampler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+//{
+//	static char * kwlist[] = {"FreqStart", "FreqEnd", "InitialNumPoints", "RangeThreshold", \
+//		"MaxBend", "MinimumSpacing", "Parallelize", NULL};
+//	double x0, x1;
+//	SpectrumSampler_Options options = {33, 0.001, 10, 1e-6, 0};
+//	PyObject *py_expectBool = NULL;
+//	S4SpectrumSampler *self;
+//	if(!PyArg_ParseTupleAndKeywords(args, kwds, "dd|i|d|d|d|O!:SpectrumSampler_New", \
+//		kwlist, &x0, &x1, &options.initial_num_points, &options.range_threshold,\
+//		&options.max_bend, &options.min_dx, &PyBool_Type, &py_expectBool))
+//		return NULL;
+//	if(NULL != py_expectBool)
+//		options.parallelize = PyObject_IsTrue(py_expectBool);
+//
+//	self = (S4SpectrumSampler*)type->tp_alloc(type, 0);
+//	if(NULL == self)
+//		return NULL;
+//	self->SpecS = SpectrumSampler_New(x0, x1, &options);
+//	return (PyObject*)self;
+//}
 
-		if(NULL == data->xy)
-		{
-			data->ny = PyTuple_Size(pj);
-			return 1;
-		}
-		data->xy[i*ld + 0] = PyFloat_AsDouble(PyTuple_GetItem(pi, 0));
-		for(int j = 0; j < data->ny; j++)
-			data->xy[i*ld + j + 1] = PyFloat_AsDouble(PyTuple_GetItem(pj, j));
-	}
-	return 1;
-}
-
-static PyObject *S4Interpolator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-	static char *kwlist[] = {"Type", "Table", NULL};
-	const char *typeName;
-	S4Interpolator *self;
-	S4Interpolator_Data interData = {0, 0, NULL};
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "sO&:interpolator_new", kwlist, &typeName, &interpolator_table_converter, &interData))
-		return NULL;
-	interData.xy = (double*)malloc(sizeof(double) * interData.n * (interData.ny + 1));
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "sO&:interpolator_new", kwlist, &typeName, &interpolator_table_converter, &interData))
-	{
-		free(interData.xy); interData.xy = NULL;
-		return NULL;
-	}
-
-	self = (S4Interpolator*)type->tp_alloc(type, 0);
-	if(NULL != self)
-	{
-		Interpolator_type inter_type;
-		if(0 == strcmp("linear", typeName))
-			inter_type = Interpolator_LINEAR;
-		else if(0 == strcmp("cublic spline", typeName))
-			inter_type = Interpolator_CUBIC_SPLINE;
-		else if(0 == strcmp("cubic hermite spline", typeName))
-			inter_type = Interpolator_CUBIC_HERMITE_SPLINE;
-		else
-		{
-			PyErr_SetString(PyExc_TypeError, "the 'type' should be 'linear'/'cubic spline'/'cubic hermite spline'.");
-			free(interData.xy); interData.xy = NULL;
-			return NULL;
-		}
-		self->I = Interpolator_New(interData.n, interData.ny, interData.xy, inter_type);
-	}
-	free(interData.xy); interData.xy = NULL;
-	return (PyObject*)self;
-}
-
-static PyObject *S4Interpolator_Get(S4Interpolator *self, PyObject *args, PyObject *kwds)
-{
-	static char *kwlist[] = {"X", NULL};
-	double x;
-	double *ys;
-	int ny;
-	PyObject *ret;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "d:Get", kwlist, &x))
-		return NULL;
-	ys = Interpolator_Get(self->I, x, &ny);
-	if(NULL == ys)
-		Py_RETURN_NONE;
-	ret = PyTuple_New(ny);
-	for(int i = 0; i < ny; i++)
-		PyTuple_SetItem(ret, i, Py_BuildValue("d", ys[i]));
-	return ret;
-}
-
-static PyObject *S4SpectrumSampler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-	static char * kwlist[] = {"FreqStart", "FreqEnd", "InitialNumPoints", "RangeThreshold", \
-		"MaxBend", "MinimumSpacing", "Parallelize", NULL};
-	double x0, x1;
-	SpectrumSampler_Options options = {33, 0.001, 10, 1e-6, 0};
-	PyObject *py_expectBool = NULL;
-	S4SpectrumSampler *self;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "dd|i|d|d|d|O!:SpectrumSampler_New", \
-		kwlist, &x0, &x1, &options.initial_num_points, &options.range_threshold,\
-		&options.max_bend, &options.min_dx, &PyBool_Type, &py_expectBool))
-		return NULL;
-	if(NULL != py_expectBool)
-		options.parallelize = PyObject_IsTrue(py_expectBool);
-
-	self = (S4SpectrumSampler*)type->tp_alloc(type, 0);
-	if(NULL == self)
-		return NULL;
-	self->SpecS = SpectrumSampler_New(x0, x1, &options);
-	return (PyObject*)self;
-}
-
-static PyObject *S4_NewSpectrumSampler(PyObject *self, PyObject *args, PyObject *kwds)
-{
-	return S4SpectrumSampler_new(&S4SpectrumSampler_Type, args, kwds);
-}
+//static PyObject *S4_NewSpectrumSampler(PyObject *self, PyObject *args, PyObject *kwds)
+//{
+//	return S4SpectrumSampler_new(&S4SpectrumSampler_Type, args, kwds);
+//}
 
 static PyObject *S4Sim_new(PyTypeObject *type, PyObject *args, PyObject *kwds){
 	S4Sim *self;
@@ -634,17 +634,17 @@ static void S4Sim_dealloc(S4Sim* self){
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static void S4Interpolator_dealloc(S4Interpolator *self)
-{
-	Interpolator_Destroy(self->I);
-	Py_TYPE(self)->tp_free((PyObject*) self);
-}
+//static void S4Interpolator_dealloc(S4Interpolator *self)
+//{
+//	Interpolator_Destroy(self->I);
+//	Py_TYPE(self)->tp_free((PyObject*) self);
+//}
 
-static void S4SpectrumSampler_dealloc(S4SpectrumSampler *self)
-{
-	SpectrumSampler_Destroy(self->SpecS);
-	Py_TYPE(self)->tp_free((PyObject*) self);
-}
+//static void S4SpectrumSampler_dealloc(S4SpectrumSampler *self)
+//{
+//	SpectrumSampler_Destroy(self->SpecS);
+//	Py_TYPE(self)->tp_free((PyObject*) self);
+//}
 
 static PyObject *S4Sim_Clone(S4Sim *self, PyObject *args){
 	S4Sim *cpy;
@@ -656,17 +656,17 @@ static PyObject *S4Sim_Clone(S4Sim *self, PyObject *args){
 	return (PyObject*)cpy;
 }
 
-static PyObject *S4Sim_ConvertUnits(S4Sim *self, PyObject *args)
-{
-	double value;
-	const char *from_units = NULL;
-	const char *to_units = NULL;
-	if(!PyArg_ParseTuple(args, "dss", &value, from_units, to_units))
-		return NULL;
-	if(0 == convert_units(&value, from_units, to_units))
-		return Py_BuildValue("d", value);
-	return NULL;
-}
+//static PyObject *S4Sim_ConvertUnits(S4Sim *self, PyObject *args)
+//{
+//	double value;
+//	const char *from_units = NULL;
+//	const char *to_units = NULL;
+//	if(!PyArg_ParseTuple(args, "dss", &value, from_units, to_units))
+//		return NULL;
+//	if(0 == convert_units(&value, from_units, to_units))
+//		return Py_BuildValue("d", value);
+//	return NULL;
+//}
 
 static PyObject *S4Sim_SetMaterial(S4Sim *self, PyObject *args, PyObject *kwds){
 	static char *kwlist[] = { "Name", "Epsilon", NULL };
@@ -1655,132 +1655,132 @@ static PyObject *S4Sim_SetOptions(S4Sim *self, PyObject *args, PyObject *kwds){
 	Py_RETURN_NONE;
 }
 
-static PyObject *S4SpectrumSampler_IsDone(S4SpectrumSampler *self, PyObject *args)
-{
-	if(!PyArg_ParseTuple(args, ":IsDone"))
-		return NULL;
-	if(SpectrumSampler_IsDone(self->SpecS))
-		Py_RETURN_TRUE;
-	Py_RETURN_FALSE;
-}
+//static PyObject *S4SpectrumSampler_IsDone(S4SpectrumSampler *self, PyObject *args)
+//{
+//	if(!PyArg_ParseTuple(args, ":IsDone"))
+//		return NULL;
+//	if(SpectrumSampler_IsDone(self->SpecS))
+//		Py_RETURN_TRUE;
+//	Py_RETURN_FALSE;
+//}
+//
+//static PyObject *S4SpectrumSampler_IsParallelized(S4SpectrumSampler *self, PyObject *args)
+//{
+//	if(!PyArg_ParseTuple(args, ":IsParallelized"))
+//		return NULL;
+//	if(SpectrumSampler_IsParallelized(self->SpecS))
+//		Py_RETURN_TRUE;
+//	Py_RETURN_FALSE;
+//}
+//
+//static PyObject *S4SpectrumSampler_GetFrequency(S4SpectrumSampler *self, PyObject *args)
+//{
+//	if(!PyArg_ParseTuple(args, ":GetFrequency"))
+//		return NULL;
+//	if(SpectrumSampler_IsParallelized(self->SpecS))
+//	{
+//		PyErr_SetString(PyExc_RuntimeError, "call 'GetFrequency' is illegal when is parallelized.");
+//		return NULL;
+//	}
+//	return Py_BuildValue("d", SpectrumSampler_GetFrequency(self->SpecS));
+//}
+//
+//static PyObject *S4SpectrumSampler_GetFrequencies(S4SpectrumSampler *self, PyObject *args)
+//{
+//	Py_ssize_t nf;
+//	double *freqs;
+//	PyObject *retObj;
+//	if(!PyArg_ParseTuple(args, ":GetFrequencies"))
+//		return NULL;
+//	if(!SpectrumSampler_IsParallelized(self->SpecS))
+//	{
+//		PyErr_SetString(PyExc_RuntimeError, "call 'GetFrequencies' is illegal when is not parallelized.");
+//		return NULL;
+//	}
+//	nf = SpectrumSampler_GetFrequencies(self->SpecS, &freqs);
+//	retObj = PyTuple_New(nf);
+//	for(int i = 0; i < nf; i++)
+//		PyTuple_SetItem(retObj, i, Py_BuildValue("d", freqs[i]));
+//	return retObj;
+//}
+//
+//static PyObject *S4SpectrumSampler_SubmitResult(S4SpectrumSampler *self, PyObject *args, PyObject *kwds)
+//{
+//	static char *kwlist[] = {"Result", NULL};
+//	double y;
+//	if(!PyArg_ParseTupleAndKeywords(args, kwds, "d:SubmitResult", kwlist, &y))
+//		return NULL;
+//	if(SpectrumSampler_IsParallelized(self->SpecS))
+//	{
+//		PyErr_SetString(PyExc_RuntimeError, "call 'SubmitResult' is illegal when is parallelized.");
+//		return NULL;
+//	}
+//	SpectrumSampler_SubmitResult(self->SpecS, y);
+//	Py_RETURN_NONE;
+//}
+//
+//static PyObject *S4SpectrumSampler_SubmitResults(S4SpectrumSampler *self, PyObject *args, PyObject *kwds)
+//{
+//	static char *kwlist[] = { "Results", NULL };
+//	int ny;
+//	double *y;
+//	PyObject *tupleObj = NULL;
+//	if(!PyArg_ParseTupleAndKeywords(args, kwds, "O!:SubmitResults", kwlist, &PyTuple_Type, &tupleObj))
+//		return NULL;
+//	if(!SpectrumSampler_IsParallelized(self->SpecS))
+//	{
+//		PyErr_SetString(PyExc_RuntimeError, "call 'SubmitResult' is illegal when is not parallelized.");
+//		return NULL;
+//	}
+//	ny = SpectrumSampler_GetSubmissionBuffer(self->SpecS, &y);
+//	if(ny != PyTuple_Size(tupleObj))
+//	{
+//		PyErr_SetString(PyExc_TypeError, "the length of the results is not equal to the buffer.");
+//		return NULL;
+//	}
+//	for(int i = 0; i < ny; i++)
+//		y[i] = PyFloat_AsDouble(PyTuple_GetItem(tupleObj, i));
+//	SpectrumSampler_SubmitResults(self->SpecS);
+//	Py_RETURN_NONE;
+//}
+//
+//static PyObject *S4SpectrumSampler_GetSpectrum(S4SpectrumSampler *self, PyObject *args)
+//{
+//	int n;
+//	double pt[2];
+//	PyObject *retObj;
+//	SpectrumSampler_Enumerator e;
+//	if(!PyArg_ParseTuple(args, ":GetSpectrum"))
+//		return NULL;
+//	n = SpectrumSampler_GetNumPoints(self->SpecS);
+//	retObj = PyTuple_New(n);
+//	e = SpectrumSampler_GetPointEnumerator(self->SpecS);
+//	for(int i = 0; i < n; i++)
+//	{
+//		SpectrumSampler_Enumerator_Get(e, pt);
+//		PyTuple_SetItem(retObj, i, PyTuple_Pack(2, pt[0], pt[1]));
+//	}
+//	return retObj;
+//}
 
-static PyObject *S4SpectrumSampler_IsParallelized(S4SpectrumSampler *self, PyObject *args)
-{
-	if(!PyArg_ParseTuple(args, ":IsParallelized"))
-		return NULL;
-	if(SpectrumSampler_IsParallelized(self->SpecS))
-		Py_RETURN_TRUE;
-	Py_RETURN_FALSE;
-}
-
-static PyObject *S4SpectrumSampler_GetFrequency(S4SpectrumSampler *self, PyObject *args)
-{
-	if(!PyArg_ParseTuple(args, ":GetFrequency"))
-		return NULL;
-	if(SpectrumSampler_IsParallelized(self->SpecS))
-	{
-		PyErr_SetString(PyExc_RuntimeError, "call 'GetFrequency' is illegal when is parallelized.");
-		return NULL;
-	}
-	return Py_BuildValue("d", SpectrumSampler_GetFrequency(self->SpecS));
-}
-
-static PyObject *S4SpectrumSampler_GetFrequencies(S4SpectrumSampler *self, PyObject *args)
-{
-	Py_ssize_t nf;
-	double *freqs;
-	PyObject *retObj;
-	if(!PyArg_ParseTuple(args, ":GetFrequencies"))
-		return NULL;
-	if(!SpectrumSampler_IsParallelized(self->SpecS))
-	{
-		PyErr_SetString(PyExc_RuntimeError, "call 'GetFrequencies' is illegal when is not parallelized.");
-		return NULL;
-	}
-	nf = SpectrumSampler_GetFrequencies(self->SpecS, &freqs);
-	retObj = PyTuple_New(nf);
-	for(int i = 0; i < nf; i++)
-		PyTuple_SetItem(retObj, i, Py_BuildValue("d", freqs[i]));
-	return retObj;
-}
-
-static PyObject *S4SpectrumSampler_SubmitResult(S4SpectrumSampler *self, PyObject *args, PyObject *kwds)
-{
-	static char *kwlist[] = {"Result", NULL};
-	double y;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "d:SubmitResult", kwlist, &y))
-		return NULL;
-	if(SpectrumSampler_IsParallelized(self->SpecS))
-	{
-		PyErr_SetString(PyExc_RuntimeError, "call 'SubmitResult' is illegal when is parallelized.");
-		return NULL;
-	}
-	SpectrumSampler_SubmitResult(self->SpecS, y);
-	Py_RETURN_NONE;
-}
-
-static PyObject *S4SpectrumSampler_SubmitResults(S4SpectrumSampler *self, PyObject *args, PyObject *kwds)
-{
-	static char *kwlist[] = { "Results", NULL };
-	int ny;
-	double *y;
-	PyObject *tupleObj = NULL;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "O!:SubmitResults", kwlist, &PyTuple_Type, &tupleObj))
-		return NULL;
-	if(!SpectrumSampler_IsParallelized(self->SpecS))
-	{
-		PyErr_SetString(PyExc_RuntimeError, "call 'SubmitResult' is illegal when is not parallelized.");
-		return NULL;
-	}
-	ny = SpectrumSampler_GetSubmissionBuffer(self->SpecS, &y);
-	if(ny != PyTuple_Size(tupleObj))
-	{
-		PyErr_SetString(PyExc_TypeError, "the length of the results is not equal to the buffer.");
-		return NULL;
-	}
-	for(int i = 0; i < ny; i++)
-		y[i] = PyFloat_AsDouble(PyTuple_GetItem(tupleObj, i));
-	SpectrumSampler_SubmitResults(self->SpecS);
-	Py_RETURN_NONE;
-}
-
-static PyObject *S4SpectrumSampler_GetSpectrum(S4SpectrumSampler *self, PyObject *args)
-{
-	int n;
-	double pt[2];
-	PyObject *retObj;
-	SpectrumSampler_Enumerator e;
-	if(!PyArg_ParseTuple(args, ":GetSpectrum"))
-		return NULL;
-	n = SpectrumSampler_GetNumPoints(self->SpecS);
-	retObj = PyTuple_New(n);
-	e = SpectrumSampler_GetPointEnumerator(self->SpecS);
-	for(int i = 0; i < n; i++)
-	{
-		SpectrumSampler_Enumerator_Get(e, pt);
-		PyTuple_SetItem(retObj, i, PyTuple_Pack(2, pt[0], pt[1]));
-	}
-	return retObj;
-}
-
-static PyMethodDef S4SpectrumSampler_methods[] =
-{
-	{"IsDone"			, (PyCFunction)S4SpectrumSampler_IsDone, METH_VARARGS, PyDoc_STR("IsDone() -> bool")},
-	{"IsParallelized"	, (PyCFunction)S4SpectrumSampler_IsParallelized, METH_VARARGS, PyDoc_STR("IsParallelized() -> bool")},
-	{"GetFrequency"		, (PyCFunction)S4SpectrumSampler_GetFrequency, METH_VARARGS, PyDoc_STR("GetFrequency() -> freq")},
-	{"GetFrequencies"	, (PyCFunction)S4SpectrumSampler_GetFrequencies, METH_VARARGS, PyDoc_STR("GetFrequencies() -> tuple")},
-	{"SubmitResult"		, (PyCFunction)S4SpectrumSampler_SubmitResult, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SubmitResult(result) -> None")},
-	{"SubmitResults"	, (PyCFunction)S4SpectrumSampler_SubmitResults, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SubmitResults(results) -> None")},
-	{"GetSpectrum"		, (PyCFunction)S4SpectrumSampler_GetSpectrum, METH_VARARGS, PyDoc_STR("GetSpectrum() -> tuple")},
-	{NULL, NULL, 0, NULL}
-};
-
-static PyMethodDef	S4Interpolator_methods[] =
-{
-	{ "Get", (PyCFunction)S4Interpolator_Get, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("Get(x) -> Tuple") },
-
-	{ NULL, NULL, 0, NULL }
-};
+//static PyMethodDef S4SpectrumSampler_methods[] =
+//{
+//	{"IsDone"			, (PyCFunction)S4SpectrumSampler_IsDone, METH_VARARGS, PyDoc_STR("IsDone() -> bool")},
+//	{"IsParallelized"	, (PyCFunction)S4SpectrumSampler_IsParallelized, METH_VARARGS, PyDoc_STR("IsParallelized() -> bool")},
+//	{"GetFrequency"		, (PyCFunction)S4SpectrumSampler_GetFrequency, METH_VARARGS, PyDoc_STR("GetFrequency() -> freq")},
+//	{"GetFrequencies"	, (PyCFunction)S4SpectrumSampler_GetFrequencies, METH_VARARGS, PyDoc_STR("GetFrequencies() -> tuple")},
+//	{"SubmitResult"		, (PyCFunction)S4SpectrumSampler_SubmitResult, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SubmitResult(result) -> None")},
+//	{"SubmitResults"	, (PyCFunction)S4SpectrumSampler_SubmitResults, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SubmitResults(results) -> None")},
+//	{"GetSpectrum"		, (PyCFunction)S4SpectrumSampler_GetSpectrum, METH_VARARGS, PyDoc_STR("GetSpectrum() -> tuple")},
+//	{NULL, NULL, 0, NULL}
+//};
+//
+//static PyMethodDef	S4Interpolator_methods[] =
+//{
+//	{ "Get", (PyCFunction)S4Interpolator_Get, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("Get(x) -> Tuple") },
+//
+//	{ NULL, NULL, 0, NULL }
+//};
 
 static PyMethodDef S4Sim_methods[] = {
 	{"Clone"            , (PyCFunction)S4Sim_Clone, METH_NOARGS, PyDoc_STR("Clone() -> S4.Simulation")},
@@ -1804,7 +1804,7 @@ static PyMethodDef S4Sim_methods[] = {
 	{"GetReciprocalLattice"		, (PyCFunction)S4Sim_GetReciprocalLattice, METH_NOARGS, PyDoc_STR("GetReciprocalLattice() -> ((px,py),(qx,qy))")},
 	{"GetEpsilon"				, (PyCFunction)S4Sim_GetEpsilon, METH_VARARGS, PyDoc_STR("GetEpsilon(x,y,z) -> Complex")},
 	{"OutputLayerPatternPostscript", (PyCFunction)S4Sim_OutputLayerPatternPostscript, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("OutputLayerPatternPostscript(layer,filename) -> None")},
-	{ "OutputLayerPatternRealization", (PyCFunction)S4Sim_OutputLayerPatternRealization, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("OutputLayerPatternRealization(layer, nu, nv, filename) -> None")},
+	{"OutputLayerPatternRealization", (PyCFunction)S4Sim_OutputLayerPatternRealization, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("OutputLayerPatternRealization(layer, nu, nv, filename) -> None")},
 	/* Outputs requiring solutions */
 	{"OutputStructurePOVRay"	, (PyCFunction)S4Sim_OutputStructurePOVRay, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("OutputStructurePOVRay(filename) -> None")},
 	{"GetBasisSet"				, (PyCFunction)S4Sim_GetBasisSet, METH_NOARGS, PyDoc_STR("GetBasisSet() -> Tuple")},
@@ -1836,6 +1836,8 @@ static PyMethodDef S4Sim_methods[] = {
 	{"SetBasisFieldDumpPrefix"	, (PyCFunction)S4Sim_SetBasisFieldDumpPrefix, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SetBasisFieldDumpPrefix(prefix) -> None")},
 	{"SetLatticeTruncation"		, (PyCFunction)S4Sim_SetLatticeTruncation, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SetLatticeTruncation(Trunc) -> NOne")},
 	*/
+	/* Extra */
+	//{"ConvertUnits"            , (PyCFunction)S4Sim_ConvertUnits, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("Unit Converter")},
 	{NULL, NULL}
 };
 
@@ -1885,132 +1887,132 @@ static PyTypeObject S4Sim_Type = {
 	0,                  /*tp_is_gc*/
 };
 
-static PyTypeObject S4Interpolator_Type = {
-	/* The ob_type field must be initialized in the module init function
-	* to be portable to Windows without using C++. */
-	PyVarObject_HEAD_INIT(NULL, 0)
-	"S4.Interpolator",    /*tp_name*/
-	sizeof(S4Interpolator),      /*tp_basicsize*/
-	0,                  /*tp_itemsize*/
-	/* methods */
-	(destructor)S4Interpolator_dealloc, /*tp_dealloc*/
-	0,                  /*tp_print*/
-	0,                  /*tp_getattr*/
-	0,                  /*tp_setattr*/
-	0,                  /*tp_reserved*/
-	0,                  /*tp_repr*/
-	0,                  /*tp_as_number*/
-	0,                  /*tp_as_sequence*/
-	0,                  /*tp_as_mapping*/
-	0,                  /*tp_hash*/
-	0,                  /*tp_call*/
-	0,                  /*tp_str*/
-	0,                  /*tp_getattro*/
-	0,                  /*tp_setattro*/
-	0,                  /*tp_as_buffer*/
-	Py_TPFLAGS_DEFAULT, /*tp_flags*/
-	0,                  /*tp_doc*/
-	0,                  /*tp_traverse*/
-	0,                  /*tp_clear*/
-	0,                  /*tp_richcompare*/
-	0,                  /*tp_weaklistoffset*/
-	0,                  /*tp_iter*/
-	0,                  /*tp_iternext*/
-	S4Interpolator_methods,      /*tp_methods*/
-	0,                  /*tp_members*/
-	0,                  /*tp_getset*/
-	0,                  /*tp_base*/
-	0,                  /*tp_dict*/
-	0,                  /*tp_descr_get*/
-	0,                  /*tp_descr_set*/
-	0,                  /*tp_dictoffset*/
-	0,                  /*tp_init*/
-	0,                  /*tp_alloc*/
-	S4Interpolator_new,          /*tp_new*/
-	0,                  /*tp_free*/
-	0,                  /*tp_is_gc*/
-};
+//static PyTypeObject S4Interpolator_Type = {
+//	/* The ob_type field must be initialized in the module init function
+//	* to be portable to Windows without using C++. */
+//	PyVarObject_HEAD_INIT(NULL, 0)
+//	"S4.Interpolator",    /*tp_name*/
+//	sizeof(S4Interpolator),      /*tp_basicsize*/
+//	0,                  /*tp_itemsize*/
+//	/* methods */
+//	(destructor)S4Interpolator_dealloc, /*tp_dealloc*/
+//	0,                  /*tp_print*/
+//	0,                  /*tp_getattr*/
+//	0,                  /*tp_setattr*/
+//	0,                  /*tp_reserved*/
+//	0,                  /*tp_repr*/
+//	0,                  /*tp_as_number*/
+//	0,                  /*tp_as_sequence*/
+//	0,                  /*tp_as_mapping*/
+//	0,                  /*tp_hash*/
+//	0,                  /*tp_call*/
+//	0,                  /*tp_str*/
+//	0,                  /*tp_getattro*/
+//	0,                  /*tp_setattro*/
+//	0,                  /*tp_as_buffer*/
+//	Py_TPFLAGS_DEFAULT, /*tp_flags*/
+//	0,                  /*tp_doc*/
+//	0,                  /*tp_traverse*/
+//	0,                  /*tp_clear*/
+//	0,                  /*tp_richcompare*/
+//	0,                  /*tp_weaklistoffset*/
+//	0,                  /*tp_iter*/
+//	0,                  /*tp_iternext*/
+//	S4Interpolator_methods,      /*tp_methods*/
+//	0,                  /*tp_members*/
+//	0,                  /*tp_getset*/
+//	0,                  /*tp_base*/
+//	0,                  /*tp_dict*/
+//	0,                  /*tp_descr_get*/
+//	0,                  /*tp_descr_set*/
+//	0,                  /*tp_dictoffset*/
+//	0,                  /*tp_init*/
+//	0,                  /*tp_alloc*/
+//	S4Interpolator_new,          /*tp_new*/
+//	0,                  /*tp_free*/
+//	0,                  /*tp_is_gc*/
+//};
 
-static PyTypeObject S4SpectrumSampler_Type = {
-	/* The ob_type field must be initialized in the module init function
-	* to be portable to Windows without using C++. */
-	PyVarObject_HEAD_INIT(NULL, 0)
-	"S4.SpectrumSampler",    /*tp_name*/
-	sizeof(S4SpectrumSampler),      /*tp_basicsize*/
-	0,                  /*tp_itemsize*/
-	/* methods */
-	(destructor)S4SpectrumSampler_dealloc, /*tp_dealloc*/
-	0,                  /*tp_print*/
-	0,                  /*tp_getattr*/
-	0,                  /*tp_setattr*/
-	0,                  /*tp_reserved*/
-	0,                  /*tp_repr*/
-	0,                  /*tp_as_number*/
-	0,                  /*tp_as_sequence*/
-	0,                  /*tp_as_mapping*/
-	0,                  /*tp_hash*/
-	0,                  /*tp_call*/
-	0,                  /*tp_str*/
-	0,                  /*tp_getattro*/
-	0,                  /*tp_setattro*/
-	0,                  /*tp_as_buffer*/
-	Py_TPFLAGS_DEFAULT, /*tp_flags*/
-	0,                  /*tp_doc*/
-	0,                  /*tp_traverse*/
-	0,                  /*tp_clear*/
-	0,                  /*tp_richcompare*/
-	0,                  /*tp_weaklistoffset*/
-	0,                  /*tp_iter*/
-	0,                  /*tp_iternext*/
-	S4SpectrumSampler_methods,      /*tp_methods*/
-	0,                  /*tp_members*/
-	0,                  /*tp_getset*/
-	0,                  /*tp_base*/
-	0,                  /*tp_dict*/
-	0,                  /*tp_descr_get*/
-	0,                  /*tp_descr_set*/
-	0,                  /*tp_dictoffset*/
-	0,                  /*tp_init*/
-	0,                  /*tp_alloc*/
-	S4SpectrumSampler_new,          /*tp_new*/
-	0,                  /*tp_free*/
-	0,                  /*tp_is_gc*/
-};
+//static PyTypeObject S4SpectrumSampler_Type = {
+//	/* The ob_type field must be initialized in the module init function
+//	* to be portable to Windows without using C++. */
+//	PyVarObject_HEAD_INIT(NULL, 0)
+//	"S4.SpectrumSampler",    /*tp_name*/
+//	sizeof(S4SpectrumSampler),      /*tp_basicsize*/
+//	0,                  /*tp_itemsize*/
+//	/* methods */
+//	(destructor)S4SpectrumSampler_dealloc, /*tp_dealloc*/
+//	0,                  /*tp_print*/
+//	0,                  /*tp_getattr*/
+//	0,                  /*tp_setattr*/
+//	0,                  /*tp_reserved*/
+//	0,                  /*tp_repr*/
+//	0,                  /*tp_as_number*/
+//	0,                  /*tp_as_sequence*/
+//	0,                  /*tp_as_mapping*/
+//	0,                  /*tp_hash*/
+//	0,                  /*tp_call*/
+//	0,                  /*tp_str*/
+//	0,                  /*tp_getattro*/
+//	0,                  /*tp_setattro*/
+//	0,                  /*tp_as_buffer*/
+//	Py_TPFLAGS_DEFAULT, /*tp_flags*/
+//	0,                  /*tp_doc*/
+//	0,                  /*tp_traverse*/
+//	0,                  /*tp_clear*/
+//	0,                  /*tp_richcompare*/
+//	0,                  /*tp_weaklistoffset*/
+//	0,                  /*tp_iter*/
+//	0,                  /*tp_iternext*/
+//	S4SpectrumSampler_methods,      /*tp_methods*/
+//	0,                  /*tp_members*/
+//	0,                  /*tp_getset*/
+//	0,                  /*tp_base*/
+//	0,                  /*tp_dict*/
+//	0,                  /*tp_descr_get*/
+//	0,                  /*tp_descr_set*/
+//	0,                  /*tp_dictoffset*/
+//	0,                  /*tp_init*/
+//	0,                  /*tp_alloc*/
+//	S4SpectrumSampler_new,          /*tp_new*/
+//	0,                  /*tp_free*/
+//	0,                  /*tp_is_gc*/
+//};
 
 static PyObject *S4_new(PyObject *self, PyObject *args, PyObject *kwds){
 	return (PyObject*)S4Sim_new(&S4Sim_Type, args, kwds);
 }
 
-static PyObject *S4_NewInterpolator(PyObject *self, PyObject *args, PyObject *kwds)
-{
-	return (PyObject*)S4Interpolator_new(&S4Interpolator_Type, args, kwds);
-}
+//static PyObject *S4_NewInterpolator(PyObject *self, PyObject *args, PyObject *kwds)
+//{
+//	return (PyObject*)S4Interpolator_new(&S4Interpolator_Type, args, kwds);
+//}
 
 //didn't finished yet
-static PyObject *S4_SolveInParallel(PyObject *Self, PyObject *args, PyObject *kwds)
-{
-	static char *kwlist[] = {"Layer", "Simulations", NULL};
-	const char *layerName;
-	//S4_solve_in
-	Py_RETURN_NONE;
-}
+//static PyObject *S4_SolveInParallel(PyObject *Self, PyObject *args, PyObject *kwds)
+//{
+//	static char *kwlist[] = {"Layer", "Simulations", NULL};
+//	const char *layerName;
+//	//S4_solve_in
+//	Py_RETURN_NONE;
+//}
 
 static PyMethodDef S4_funcs[] = {
 	{"New"				, (PyCFunction)S4_new, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("New() -> new S4 simulation object")},
-	{"SolveInParallel"	, (PyCFunction)S4_SolveInParallel, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SolveInParallel(layer, sim_obj) -> None")},
-	{ "NewInterpolator"	, (PyCFunction)S4_NewInterpolator, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("NewInterpolator(type, table) -> new S4 interpolator object") },
+	//{"SolveInParallel"	, (PyCFunction)S4_SolveInParallel, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("SolveInParallel(layer, sim_obj) -> None")},
+	//{ "NewInterpolator"	, (PyCFunction)S4_NewInterpolator, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("NewInterpolator(type, table) -> new S4 interpolator object") },
 	//{"PrintTuple"		, (PyCFunction)S4_PrintTuple, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("PrintTuple(tuple) -> None")},
-	{ "NewSpectrumSampler", (PyCFunction)S4_NewSpectrumSampler, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("NewSpectrumSampler() -> new S4 spectrum sampler onject")},
+	//{ "NewSpectrumSampler", (PyCFunction)S4_NewSpectrumSampler, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("NewSpectrumSampler() -> new S4 spectrum sampler onject")},
 	{NULL , NULL} /* sentinel */
 };
 
 /* Initialization function for the module (*must* be called PyInit_FunctionSampler1D) */
-PyDoc_STRVAR(module_doc, "Stanford Stratified Structure Solver (S4): Fourier Modal Method.");
+PyDoc_STRVAR(module_doc, "Fork Stanford Stratified Structure Solver (S4B): Fourier Modal Method.");
 
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef S4_module = {
 	PyModuleDef_HEAD_INIT,
-	"S4",
+	"S4B",
 	module_doc,
 	sizeof(struct module_state),
 	S4_funcs,
@@ -2020,7 +2022,7 @@ static struct PyModuleDef S4_module = {
 	NULL
 };
 #define INITERROR return NULL
-PyObject * PyInit_S4(void)
+PyObject * PyInit_S4B(void)
 #else
 #define INITERROR return
 PyMODINIT_FUNC initS4(void)
@@ -2033,20 +2035,20 @@ PyMODINIT_FUNC initS4(void)
 	/* Finalize the type object including setting type of the new type
 	 * object; doing it here is required for portability, too. */
 	if(PyType_Ready(&S4Sim_Type) < 0){ INITERROR; }
-	if(PyType_Ready(&S4Interpolator_Type) < 0){ INITERROR; }
-	if(PyType_Ready(&S4SpectrumSampler_Type) < 0){ INITERROR; }
+	//if(PyType_Ready(&S4Interpolator_Type) < 0){ INITERROR; }
+	//if(PyType_Ready(&S4SpectrumSampler_Type) < 0){ INITERROR; }
 
 	/* Create the module and add the functions */
 #if PY_MAJOR_VERSION >= 3
 	m = PyModule_Create(&S4_module);
 #else
-	m = Py_InitModule3("S4", S4_funcs, module_doc);
+	m = Py_InitModule3("S4B", S4_funcs, module_doc);
 #endif
 	if(m == NULL){ INITERROR; }
 
 	struct module_state *st = GETSTATE(m);
 
-	st->error = PyErr_NewException("S4.Error", NULL, NULL);
+	st->error = PyErr_NewException("S4B.Error", NULL, NULL);
 	if(st->error == NULL){
 		Py_DECREF(m);
 		INITERROR;

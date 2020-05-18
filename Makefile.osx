@@ -57,7 +57,7 @@ OPTFLAGS = -O3
 OBJDIR = ./build
 S4_BINNAME = $(OBJDIR)/S4
 S4_LIBNAME = $(OBJDIR)/libS4.a
-S4r_LIBNAME = $(OBJDIR)/libS4r.a
+#S4r_LIBNAME = $(OBJDIR)/libS4r.a
 
 ##################### DO NOT EDIT BELOW THIS LINE #####################
 
@@ -98,7 +98,7 @@ all: $(S4_LIBNAME)
 objdir:
 	mkdir -p $(OBJDIR)
 	mkdir -p $(OBJDIR)/S4k
-	mkdir -p $(OBJDIR)/S4r
+	#mkdir -p $(OBJDIR)/S4r
 	mkdir -p $(OBJDIR)/modules
 
 S4_LIBOBJS = \
@@ -121,26 +121,26 @@ S4_LIBOBJS = \
 	$(OBJDIR)/S4k/sort.o \
 	$(OBJDIR)/S4k/kiss_fft.o \
 	$(OBJDIR)/S4k/kiss_fftnd.o \
-	$(OBJDIR)/S4k/SpectrumSampler.o \
 	$(OBJDIR)/S4k/cubature.o \
-	$(OBJDIR)/S4k/Interpolator.o \
-	$(OBJDIR)/S4k/convert.o
+	#$(OBJDIR)/S4k/Interpolator.o \
+	#$(OBJDIR)/S4k/SpectrumSampler.o \
+	#$(OBJDIR)/S4k/convert.o
 
-S4r_LIBOBJS = \
-	$(OBJDIR)/S4r/Material.o \
-	$(OBJDIR)/S4r/LatticeGridRect.o \
-	$(OBJDIR)/S4r/LatticeGridArb.o \
-	$(OBJDIR)/S4r/POFF2Mesh.o \
-	$(OBJDIR)/S4r/PeriodicMesh.o \
-	$(OBJDIR)/S4r/Shape.o \
-	$(OBJDIR)/S4r/Simulation.o \
-	$(OBJDIR)/S4r/Layer.o \
-	$(OBJDIR)/S4r/Pseudoinverse.o \
-	$(OBJDIR)/S4r/Eigensystems.o \
-	$(OBJDIR)/S4r/IRA.o \
-	$(OBJDIR)/S4r/intersection.o \
-	$(OBJDIR)/S4r/predicates.o \
-	$(OBJDIR)/S4r/periodic_off2.o
+#S4r_LIBOBJS = \
+	#$(OBJDIR)/S4r/Material.o \
+	#$(OBJDIR)/S4r/LatticeGridRect.o \
+	#$(OBJDIR)/S4r/LatticeGridArb.o \
+	#$(OBJDIR)/S4r/POFF2Mesh.o \
+	#$(OBJDIR)/S4r/PeriodicMesh.o \
+	#$(OBJDIR)/S4r/Shape.o \
+	#$(OBJDIR)/S4r/Simulation.o \
+	#$(OBJDIR)/S4r/Layer.o \
+	#$(OBJDIR)/S4r/Pseudoinverse.o \
+	#$(OBJDIR)/S4r/Eigensystems.o \
+	#$(OBJDIR)/S4r/IRA.o \
+	#$(OBJDIR)/S4r/intersection.o \
+	#$(OBJDIR)/S4r/predicates.o \
+	#$(OBJDIR)/S4r/periodic_off2.o
 
 ifndef LAPACK_LIB
   S4_LIBOBJS += $(OBJDIR)/S4k/Eigensystems.o
@@ -148,8 +148,8 @@ endif
 
 $(S4_LIBNAME): objdir $(S4_LIBOBJS)
 	$(AR) crvs $@ $(S4_LIBOBJS)
-$(S4r_LIBNAME): objdir $(S4r_LIBOBJS)
-	$(AR) crvs $@ $(S4r_LIBOBJS)
+#$(S4r_LIBNAME): objdir $(S4r_LIBOBJS)
+	#$(AR) crvs $@ $(S4r_LIBOBJS)
 
 $(OBJDIR)/S4k/S4.o: S4/S4.cpp
 	$(CXX) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
@@ -189,48 +189,48 @@ $(OBJDIR)/S4k/kiss_fft.o: S4/kiss_fft/kiss_fft.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 $(OBJDIR)/S4k/kiss_fftnd.o: S4/kiss_fft/tools/kiss_fftnd.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
-$(OBJDIR)/S4k/SpectrumSampler.o: S4/SpectrumSampler.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+#$(OBJDIR)/S4k/SpectrumSampler.o: S4/SpectrumSampler.c
+	#$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 $(OBJDIR)/S4k/cubature.o: S4/cubature.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
-$(OBJDIR)/S4k/Interpolator.o: S4/Interpolator.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
-$(OBJDIR)/S4k/convert.o: S4/convert.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+#$(OBJDIR)/S4k/Interpolator.o: S4/Interpolator.c
+	#$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+#$(OBJDIR)/S4k/c0onvert.o: S4/convert.c
+	#$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 $(OBJDIR)/S4k/Eigensystems.o: S4/RNP/Eigensystems.cpp
 	$(CXX) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 	
 
 
-$(OBJDIR)/S4r/Material.o: S4r/Material.cpp S4r/Material.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/LatticeGridRect.o: S4r/LatticeGridRect.cpp S4r/PeriodicMesh.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/LatticeGridArb.o: S4r/LatticeGridArb.cpp S4r/PeriodicMesh.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/POFF2Mesh.o: S4r/POFF2Mesh.cpp S4r/PeriodicMesh.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/PeriodicMesh.o: S4r/PeriodicMesh.cpp S4r/PeriodicMesh.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/Shape.o: S4r/Shape.cpp S4r/Shape.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/Simulation.o: S4r/Simulation.cpp S4r/Simulation.hpp S4r/StarProduct.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/Layer.o: S4r/Layer.cpp S4r/Layer.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/Pseudoinverse.o: S4r/Pseudoinverse.cpp S4r/Pseudoinverse.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/Eigensystems.o: S4r/Eigensystems.cpp S4r/Eigensystems.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/IRA.o: S4r/IRA.cpp S4r/IRA.hpp S4r/Types.hpp
-	$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
-$(OBJDIR)/S4r/intersection.o: S4r/intersection.c S4r/intersection.h
-	$(CC) -c -O3 $< -o $@
-$(OBJDIR)/S4r/periodic_off2.o: S4r/periodic_off2.c S4r/periodic_off2.h 
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
-$(OBJDIR)/S4r/predicates.o: S4r/predicates.c
-	$(CC) -c -O3 $< -o $@
+#$(OBJDIR)/S4r/Material.o: S4r/Material.cpp S4r/Material.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/LatticeGridRect.o: S4r/LatticeGridRect.cpp S4r/PeriodicMesh.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/LatticeGridArb.o: S4r/LatticeGridArb.cpp S4r/PeriodicMesh.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/POFF2Mesh.o: S4r/POFF2Mesh.cpp S4r/PeriodicMesh.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/PeriodicMesh.o: S4r/PeriodicMesh.cpp S4r/PeriodicMesh.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/Shape.o: S4r/Shape.cpp S4r/Shape.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/Simulation.o: S4r/Simulation.cpp S4r/Simulation.hpp S4r/StarProduct.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/Layer.o: S4r/Layer.cpp S4r/Layer.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/Pseudoinverse.o: S4r/Pseudoinverse.cpp S4r/Pseudoinverse.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/Eigensystems.o: S4r/Eigensystems.cpp S4r/Eigensystems.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/IRA.o: S4r/IRA.cpp S4r/IRA.hpp S4r/Types.hpp
+	#$(CXX) -c $(CFLAGS) $(CPPFLAGS) -I. $< -o $@
+#$(OBJDIR)/S4r/intersection.o: S4r/intersection.c S4r/intersection.h
+	#$(CC) -c -O3 $< -o $@
+#$(OBJDIR)/S4r/periodic_off2.o: S4r/periodic_off2.c S4r/periodic_off2.h 
+	#$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+#$(OBJDIR)/S4r/predicates.o: S4r/predicates.c
+	#$(CC) -c -O3 $< -o $@
 	
 #### Lua Frontend
 
@@ -263,18 +263,8 @@ $(OBJDIR)/S4r/predicates.o: S4r/predicates.c
 ##### Python extension
 
 #S4_pyext: objdir $(S4_LIBNAME)
-	##echo "$(LIBS)" > $(OBJDIR)/tmp.txt
-	##sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME)
-	##python setup.py build
-
-#### R extension
-
-#S4_R_frontend: objdir $(S4_LIBNAME)
-	#R CMD BUILD RCWA
-	#R CMD INSTALL RCWA
-
-#################################################
+	#sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME) "$(LIBS)"
+	#pip install --upgrade ./
 
 clean:
 	rm -rf $(OBJDIR)
-

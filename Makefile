@@ -114,7 +114,6 @@ all: $(S4_LIBNAME)
 objdir:
 	mkdir -p $(OBJDIR)
 	mkdir -p $(OBJDIR)/S4k
-	mkdir -p $(OBJDIR)/S4r
 	mkdir -p $(OBJDIR)/modules
 	
 S4_LIBOBJS = \

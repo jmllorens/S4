@@ -1,3 +1,6 @@
+2020-05-17
+	Remove extra funcionality for Lua, but not used in python. Added a rumentary
+	install using setup.py
 2014-01-14
 	Python extension is at feature-parity with Lua. Switched to Sphinx documentation. Added S4r real space module (currently non-functional).
 2013-12-31

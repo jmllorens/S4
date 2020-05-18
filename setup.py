@@ -8,7 +8,7 @@ import platform
 
 if platform.system() == 'Linux':
     libs = ['S4', 'stdc++']
-    libs.extend([lib[2::] for lib in '-lblas -llapack -lfftw3'.split()])
+    libs.extend([lib[2::] for lib in '-lblas -llapack -lfftw3 '.split()])
     extra_link_args = ['./build/libS4.a']
     Makefile='Makefile.linux' 
 
@@ -26,7 +26,7 @@ else:
     print(platform.system())
     raise NotImplementedError
 
-S4module = setuptools.extension.Extension('S4', 
+S4module = setuptools.extension.Extension('S4B', 
                       sources = [ 'S4/main_python.c' ],
                       libraries = libs,
                       library_dirs = ['./build'],
@@ -94,9 +94,9 @@ class MakefileClean(clean):
             os.system('make clean')
 
 
-setuptools.setup(name = 'S4',
-	version = '1.1.10b',
-	description = 'Stanford Stratified Structure Solver (S4): Fourier Modal Method',
+setuptools.setup(name = 'S4B',
+	version = '1.1.2',
+	description = "Fork Stanford Stratified Structure Solver (S4B): Fourier Modal Method",
         cmdclass = {'build_ext': alt_build_ext, 'clean':MakefileClean},
 	ext_modules = [S4module]
 )
