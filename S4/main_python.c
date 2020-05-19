@@ -1152,7 +1152,40 @@ static PyObject *S4Sim_GetBasisSet(S4Sim *self, PyObject *args){
 	}
 	return rv;
 }
+// copy from kwrobert b42a239
+static PyObject *S4Sim_GetPropagationConstants(S4Sim *self, PyObject *args, PyObject *kwds){
+	int ret, n, i;
+	int *G;
+	static char *kwlist[] = { "Layer", NULL };
+	const char *layername;
+	double *q;
+	Layer *layer;
 
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "s|d:GetPropagationConstants", kwlist, &layername)){ return NULL; }
+
+	layer = Simulation_GetLayerByName(&(self->S), layername, NULL);
+	if(NULL == layer){
+		PyErr_Format(PyExc_RuntimeError, "GetPropagationConstants: Layer named '%s' not found.", layername);
+		return NULL;
+	}
+	n = Simulation_GetNumG(&(self->S), &G);
+    int n2 = 2*n; 
+    // q vector in S4 contains 2*n complex doubles, meaning we need a memory
+    // space that can accomodate 4*n doubles 
+	q = (double*)malloc(sizeof(double)*2*n2);
+	ret = Simulation_GetPropagationConstants(&(self->S), layer, q);
+	if(0 != ret){
+		HandleSolutionErrorCode("GetPropagationConstants", ret);
+		return NULL;
+	}
+	PyObject *rv;
+	rv = PyTuple_New(2*n);
+	for(i = 0; i < n2; ++i){
+		PyTuple_SetItem(rv, i, PyComplex_FromDoubles(q[2*i+0], q[2*i+1]));
+	}
+	free(q);
+	return rv;
+}
 static PyObject *S4Sim_GetAmplitudes(S4Sim *self, PyObject *args, PyObject *kwds){
 	int ret, n, i, j;
 	int *G;
@@ -1809,6 +1842,7 @@ static PyMethodDef S4Sim_methods[] = {
 	{"OutputStructurePOVRay"	, (PyCFunction)S4Sim_OutputStructurePOVRay, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("OutputStructurePOVRay(filename) -> None")},
 	{"GetBasisSet"				, (PyCFunction)S4Sim_GetBasisSet, METH_NOARGS, PyDoc_STR("GetBasisSet() -> Tuple")},
 	{"GetAmplitudes"			, (PyCFunction)S4Sim_GetAmplitudes, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetAmplitudes(layer,zoffset) -> Tuple")},
+    {"GetPropagationConstants"	, (PyCFunction)S4Sim_GetPropagationConstants, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetPropagationConstants(layer) -> Tuple")},
 	{"GetPowerFlux"				, (PyCFunction)S4Sim_GetPowerFlux, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetPowerFlux(layer,zoffset) -> (forw,back)")},
 	{"GetPowerFluxByOrder"		, (PyCFunction)S4Sim_GetPowerFluxByOrder, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetPowerFluxByOrder(layer,zoffset) -> Tuple")},
 	{"GetStressTensorIntegral"	, (PyCFunction)S4Sim_GetStressTensorIntegral, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetStressTensorIntegral(layer,zoffset) -> Complex")},
