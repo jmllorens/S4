@@ -373,9 +373,8 @@ int Simulation_OutputLayerPatternDescription(Simulation *S, Layer *layer, FILE *
 // Returns a solution error code
 // Outputs the Fourier reconstruction of the layer pattern to stdout in Gnuplot splot format.
 // The unit cell is discretized into nu and nv cells in the lattice directions.
-int Simulation_OutputLayerPatternRealization(Simulation *S, Layer *layer, int nu, int nv, FILE *fp);
-
-// Returns a solution error code
+int Simulation_OutputLayerPatternRealization(Simulation *S, Layer *layer, int nu, int nv, 
+                                                    double *eps_R, double *eps_I); // Returns a solution error code
 // E field is stored as {Exr,Eyr,Ezr,Exi,Eyi,Ezi}
 int Simulation_GetField(Simulation *S, const double r[3], double fE[6], double fH[6]);
 int Simulation_GetFieldPlane(Simulation *S, int nxy[2], double z, double *E, double *H);

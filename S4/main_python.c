@@ -1027,15 +1027,16 @@ static PyObject *S4Sim_GetEpsilon(S4Sim *self, PyObject *args){
 
 static PyObject *S4Sim_OutputLayerPatternRealization(S4Sim *self, PyObject *args, PyObject *kwds)
 {
-	static char *kwlist[] = { "Layer", "Nu", "Nv", "Filename", NULL };
+	static char *kwlist[] = { "Layer", "Nu", "Nv", NULL };
 	const char *layerName;
-	const char *fileName = NULL;
+	//const char *fileName = NULL;
 	int Nu, Nv;
 	Layer *layer;
-	FILE *fp;
+	//FILE *fp;
 	int err;
 
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "sii|s:OutputLayerPatternRealization", kwlist, &layerName, &Nu, &Nv, &fileName))
+
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "sii:OutputLayerPatternRealization", kwlist, &layerName, &Nu, &Nv))
 		return NULL;
 
 	layer = Simulation_GetLayerByName(&(self->S), layerName, NULL);
@@ -1045,25 +1046,43 @@ static PyObject *S4Sim_OutputLayerPatternRealization(S4Sim *self, PyObject *args
 		return NULL;
 	}
 
-	fp = stdout;
-	if(NULL != fileName)
-		fp = fopen(fileName, "wb");
-	if(NULL == fp)
-	{
-		PyErr_Format(PyExc_IOError, "OutputLayerPatternRealization: open file '%s' failed.", fileName);
-		return NULL;
-	}
+	/*fp = stdout;*/
+	/*if(NULL != fileName)*/
+		/*fp = fopen(fileName, "wb");*/
+	/*if(NULL == fp)*/
+	/*{*/
+		/*PyErr_Format(PyExc_IOError, "OutputLayerPatternRealization: open file '%s' failed.", fileName);*/
+		/*return NULL;*/
+	/*}*/
+    double *eps_R;
+    double *eps_I;
+	eps_R = (double*)malloc(sizeof(double) * Nu * Nv);
+	eps_I = (double*)malloc(sizeof(double) * Nu * Nv);
 
-	err = Simulation_OutputLayerPatternRealization(&(self->S), layer, Nu, Nv, fp);
+	err = Simulation_OutputLayerPatternRealization(&(self->S), layer, Nu, Nv, eps_R, eps_I);
 	if(0 != err)
 	{
 		HandleSolutionErrorCode("OutputLayerPatternRealization", err);
 		return NULL;
 	}
-	if(NULL != fp)
-		fclose(fp);
+	/*if(NULL != fp)*/
+		/*fclose(fp);*/
 
-	Py_RETURN_NONE;
+    PyObject *pk = PyTuple_New(Nu);
+    for(int i = 0; i < Nu; ++i){
+        PyObject *epi = PyTuple_New(Nv);
+        PyTuple_SetItem(pk, i, epi);
+        for(int j = 0; j < Nv; ++j){
+            PyTuple_SetItem(epi, j, PyComplex_FromDoubles(
+                                    eps_R[i+j*Nv],
+                                    eps_I[i+j*Nv]));
+            printf("%f-%f\n", eps_R[i+j*Nv], eps_I[i+j*Nv]);
+                    }
+                }
+    free(eps_R);
+    free(eps_I);
+    return pk;
+	//Py_RETURN_NONE;
  }
 
 static PyObject *S4Sim_OutputLayerPatternPostscript(S4Sim *self, PyObject *args, PyObject *kwds){

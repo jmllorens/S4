@@ -2158,7 +2158,7 @@ int Simulation_OutputLayerPatternDescription(Simulation *S, Layer *layer, FILE *
 	return 0;
 }
 
-int Simulation_OutputLayerPatternRealization(Simulation *S, Layer *layer, int nx, int ny, FILE *fp){
+int Simulation_OutputLayerPatternRealization(Simulation *S, Layer *layer, int nx, int ny, double *eps_R, double *eps_I){
 	S4_TRACE("> Simulation_OutputLayerPatternRealization(S=%p, layer=%p, nx=%d, ny=%d)\n",
 		S, layer, nx, ny);
 	if(NULL == S){
@@ -2178,8 +2178,8 @@ int Simulation_OutputLayerPatternRealization(Simulation *S, Layer *layer, int nx
 		}
 	}
 
-	FILE *f = fp;
-	if(NULL == fp){ f = stdout; }
+	//FILE *f = fp;
+	//if(NULL == fp){ f = stdout; }
 
 	double *values = (double*)S4_malloc(sizeof(double)*2*(layer->pattern.nshapes+1));
 	for(int i = -1; i < layer->pattern.nshapes; ++i){
@@ -2200,6 +2200,10 @@ int Simulation_OutputLayerPatternRealization(Simulation *S, Layer *layer, int nx
 
 	const double unit_cell_size = Simulation_GetUnitCellSize(S);
 	const int ndim = (0 == S->Lr[2] && 0 == S->Lr[3]) ? 1 : 2;
+    //Start like this, next do like a complex matrix
+    //eps_R = (double*)malloc(sizeof(double) * nx * ny);
+    //eps_I = (double*)malloc(sizeof(double) * nx * ny);
+
 	for(int j = 0; j < ny; ++j){
 		for(int i = 0; i < nx; ++i){
 			double ruv[2] = {
@@ -2225,15 +2229,17 @@ int Simulation_OutputLayerPatternRealization(Simulation *S, Layer *layer, int nx
 				z[0] += ft[0]*ca - ft[1]*sa;
 				z[1] += ft[0]*sa + ft[1]*ca;
 			}
-			fprintf(f, "%d\t%d\t%f\t%f\n", i, j, z[0], z[1]);
+            eps_R[i*ny + j] = z[0];
+            eps_I[i*ny + j] = z[1];
+		    //fprintf(f, "%d\t%d\t%f\t%f\n", i, j, z[0], z[1]);
 		}
-		fprintf(f, "\n");
+		//fprintf(f, "\n");
 	}
 
 	S4_free(values);
-
 	S4_TRACE("< Simulation_OutputLayerPatternRealization\n");
-	return 0;
+    
+   //return 0;
 }
 int Simulation_GetField(Simulation *S, const double r[3], double fE[6], double fH[6]){
 	S4_TRACE("> Simulation_GetField(S=%p, r=%p (%f,%f,%f), fE=%p, fH=%p)\n",
