@@ -2239,7 +2239,7 @@ int Simulation_OutputLayerPatternRealization(Simulation *S, Layer *layer, int nx
 	S4_free(values);
 	S4_TRACE("< Simulation_OutputLayerPatternRealization\n");
     
-   //return 0;
+    return 0;
 }
 int Simulation_GetField(Simulation *S, const double r[3], double fE[6], double fH[6]){
 	S4_TRACE("> Simulation_GetField(S=%p, r=%p (%f,%f,%f), fE=%p, fH=%p)\n",
@@ -2930,4 +2930,24 @@ int Simulation_GetSMatrix(Simulation *S, int from, int to, std::complex<double> 
 
 	S4_TRACE("< Simulation_GetSMatrix\n");
 	return 0;
+}
+
+
+//Pass to double for Python
+int Simulation_GetSMatrixD(Simulation *S, int from, int to, double *Md){
+    int ret;
+
+	const size_t n4 = 4*S->n_G;
+    std::complex<double> *M = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>)*n4*n4);
+    ret = Simulation_GetSMatrix(S, from, to, M);
+    
+
+    for (size_t i=0; i < n4; i++){
+        for (size_t j=0; j<n4; j++){
+             Md[2*(i+j*n4) + 0] = M[(i+j*n4)].real();
+             Md[2*(i+j*n4) + 1] = M[(i+j*n4)].imag();
+    }}
+    S4_TRACE("< Simulation_GetSmatrixD\n")
+    S4_free(M);
+    return 0;
 }

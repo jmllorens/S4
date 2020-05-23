@@ -34,6 +34,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+
 #include "S4.h"
 #include "cubature.h"
 //#include "convert.h"
@@ -1076,7 +1077,7 @@ static PyObject *S4Sim_OutputLayerPatternRealization(S4Sim *self, PyObject *args
             PyTuple_SetItem(epi, j, PyComplex_FromDoubles(
                                     eps_R[i+j*Nv],
                                     eps_I[i+j*Nv]));
-            printf("%f-%f\n", eps_R[i+j*Nv], eps_I[i+j*Nv]);
+            //printf("%f-%f\n", eps_R[i+j*Nv], eps_I[i+j*Nv]);
                     }
                 }
     free(eps_R);
@@ -1251,7 +1252,7 @@ static PyObject *S4Sim_GetPowerFlux(S4Sim *self, PyObject *args, PyObject *kwds)
 	double power[4];
 	Layer *layer;
 
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "s|d:GetPowerFlux", kwlist, &layername, &offset)){ return NULL; }
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "s|d:GetPowerFluxByOrder", kwlist, &layername, &offset)){ return NULL; }
 
 	layer = Simulation_GetLayerByName(&(self->S), layername, NULL);
 	if(NULL == layer){
@@ -1576,6 +1577,54 @@ static PyObject *S4Sim_GetFieldsOnGrid(S4Sim *self, PyObject *args, PyObject *kw
 	}
 }
 
+static PyObject *S4Sim_GetSMatrix(S4Sim *self, PyObject *args, PyObject *kwds){
+    int ret;
+    int from;
+    int to;
+    // No idea
+    static char *kwlist[] = {"from", "to", NULL};
+
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "ii:GetSMatrix", kwlist, &from, &to)){
+    return NULL; }
+
+	if(-1 != to && to < from){ return NULL;}
+
+    //Simulation *S;
+    //S = &(self->S);
+
+	if(NULL == (&self->S)->solution){
+		int error = Simulation_InitSolution(&(self->S));
+		if(0 != error){
+			S4_TRACE("< Simulation_GetSMatrix (failed; Simulation_InitSolution returned %d)\n", error);
+			HandleSolutionErrorCode("InitSolution", error);
+			return NULL;}}
+
+	const size_t n4 = 4*(&self->S)->n_G;
+    double *M;
+    M = (double*)malloc(sizeof(double)*n4*n4*2);
+    
+    ret = Simulation_GetSMatrixD(&(self->S), from, to, M);
+	if(0 != ret){
+		//HandleSolutionErrorCode("GetSMatrix", ret);
+		return NULL;
+	}
+    PyObject *mi = PyTuple_New(n4);
+    for (size_t i=0; i < n4; i++){
+        PyObject *mj = PyTuple_New(n4);
+        PyTuple_SetItem(mi, i, mj);
+        for (size_t j=0; j<n4; j++){
+            PyTuple_SetItem(mj, j, 
+             PyComplex_FromDoubles(M[2*(i+j*n4) + 0],
+                                   M[2*(i+j*n4) + 1])
+                            );
+    }}
+    free(M);
+    return mi;
+}
+
+
+
+
 static PyObject *S4Sim_GetSMatrixDeterminant(S4Sim *self, PyObject *args){
 	int ret;
 	double mant[2], base;
@@ -1874,6 +1923,7 @@ static PyMethodDef S4Sim_methods[] = {
 	{"GetFields"				, (PyCFunction)S4Sim_GetFields, METH_VARARGS, PyDoc_STR("GetFields(x,y,z) -> (Tuple,Tuple)")},
 	{"GetFieldsOnGrid"			, (PyCFunction)S4Sim_GetFieldsOnGrid, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetFieldsOnGrid(z,nsamples,format,filename) -> Tuple")},
 	{"GetSMatrixDeterminant"	, (PyCFunction)S4Sim_GetSMatrixDeterminant, METH_NOARGS, PyDoc_STR("GetSMatrixDeterminant() -> Tuple")},
+	{"GetSMatrix"			    , (PyCFunction)S4Sim_GetSMatrix, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetSMatrix(from,to) -> Tuple")},
 	/*
 	{"GetDiffractionOrder"		, (PyCFunction)S4Sim_GetDiffractionOrder, METH_VARARGS, PyDoc_STR("GetDiffractionOrder(m,n) -> order")},
 	*/

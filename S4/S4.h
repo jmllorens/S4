@@ -385,7 +385,7 @@ int Simulation_GetEpsilon(Simulation *S, const double r[3], double eps[2]); // e
 // Returns a solution error code
 // Determinant is (rmant[0]+i*rmant[1])*base^expo
 int Simulation_GetSMatrixDeterminant(Simulation *S, double rmant[2], double *base, int *expo);
-
+int Simulation_GetSMatrixD(Simulation *S, int from, int to, double *M); 
 
 #ifdef __cplusplus
 }
