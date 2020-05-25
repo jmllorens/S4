@@ -1,12 +1,46 @@
-BLAS_LIB = -lblas
-LAPACK_LIB = -llapack
+# To build:
+#   make <target>
+# Use the 'lib' target first to build the library, then either the Lua
+# or Python targets are 'S4lua' and 'python_ext', respectively.
+
+# Set these to the flags needed to link against BLAS and Lapack.
+#  If left blank, then performance may be very poor.
+#  On Mac OS,
+#   BLAS_LIB = -framework vecLib
+#   LAPACK_LIB = -framework vecLib
+#  On Fedora: dnf install openblas-devel
+#  On Debian and Fedora, with reference BLAS and Lapack (slow)
+#BLAS_LIB = -lblas
+#LAPACK_LIB = -llapack
+#  NOTE: on Fedora, need to link blas and lapack properly, where X.X.X is some version numbers
+#  Linking Command Example: sudo ln -s /usr/lib64/liblapack.so.X.X.X /usr/lib64/liblapack.so
+#  blas Example: sudo ln -s /usr/lib64/libopeblas64.so.X.X.X /usr/lib64/libblas.so
+#  Can also use -L to link to the explicit libary path 
+BLAS_LIB = -lopenblas
+LAPACK_LIB = -lopenblas
+
+# Specify the flags for Lua headers and libraries (only needed for Lua frontend)
+# Recommended: build lua in the current directory, and link against this local version
+# LUA_INC = -I./lua-5.2.4/install/include
+# LUA_LIB = -L./lua-5.2.4/install/lib -llua -ldl -lm
+#LUA_INC = -I./lua-5.2.4/install/include
+#LUA_LIB = -L./lua-5.2.4/install/lib -llua -ldl -lm
+
+# OPTIONAL
+# Typically if installed,
+#  FFTW3_INC can be left empty
+#  FFTW3_LIB = -lfftw3 
+#  or, if Fedora and/or fftw is version 3 but named fftw rather than fftw3
+#  FTW3_LIB = -lfftw 
+#  May need to link libraries properly as with blas and lapack above
 #FFTW3_INC =
-#FFTW3_LIB = -lfftw
+#FFTW3_LIB = -lfftw3
+
 # Typically,
 #  PTHREAD_INC = -DHAVE_UNISTD_H
 #  PTHREAD_LIB = -lpthread
-# PTHREAD_INC = -DHAVE_UNISTD_H
-# PTHREAD_LIB = -lpthread
+#PTHREAD_INC = -DHAVE_UNISTD_H
+#PTHREAD_LIB = -lpthread
 
 # OPTIONAL
 # If not installed:
@@ -16,6 +50,8 @@ LAPACK_LIB = -llapack
 #CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
 #CHOLMOD_INC = -I/usr/include/suitesparse
 #CHOLMOD_LIB = -lcholmod -lamd -lcolamd -lcamd -lccolamd
+#CHOLMOD_LIB=
+#CHOLMOD_INC=
 
 # Specify the MPI library
 # For example, on Fedora: dnf  install openmpi-devel
@@ -31,8 +67,9 @@ CXX = g++
 CC  = gcc
 
 #CFLAGS += -O3 -fPIC
-CFLAGS = -O3 -msse3 -msse2 -msse -fPIC
-
+#CFLAGS += -O0 -ggdb -fPIC -DDUMP_MATRICES -DENABLE_S4_TRACE
+#CFLAGS = -O3 -msse3 -msse2 -msse -fPIC #-fno-math-errno
+CFLAGS +=  -g -fPIC 
 # options for Sampler module
 OPTFLAGS = -O3
 
@@ -40,10 +77,15 @@ OBJDIR = ./build
 S4_BINNAME = $(OBJDIR)/S4
 S4_LIBNAME = $(OBJDIR)/libS4.a
 
+#S4r_LIBNAME = $(OBJDIR)/libS4r.a
+
 ##################### DO NOT EDIT BELOW THIS LINE #####################
+
 #### Set the compilation flags
 
-CPPFLAGS = -I. -IS4 -IS4/RNP -IS4/kiss_fft
+#CPPFLAGS = -I. -IS4 -IS4/RNP -IS4/kiss_fft #-fno-math-errno
+#CPPFLAGS = -g -I. -IS4 -IS4/RNP -IS4/kiss_fft -DDUMP_MATRICES -DENABLE_S4_TRACE #-fno-math-errno
+CPPFLAGS = -g -I. -IS4 -IS4/RNP -IS4/kiss_fft #-fno-math-errno
 
 ifdef BLAS_LIB
 CPPFLAGS += -DHAVE_BLAS
@@ -71,6 +113,8 @@ endif
 
 LIBS = $(BLAS_LIB) $(LAPACK_LIB) $(FFTW3_LIB) $(PTHREAD_LIB) $(CHOLMOD_LIB) $(MPI_LIB)
 
+TESTBIN = $(OBJDIR)/tests/test_api.o
+
 #### Compilation targets
 
 all: $(S4_LIBNAME)
@@ -78,6 +122,9 @@ all: $(S4_LIBNAME)
 objdir:
 	mkdir -p $(OBJDIR)
 	mkdir -p $(OBJDIR)/S4k
+	mkdir -p $(OBJDIR)/tests
+	#mkdir -p $(OBJDIR)/S4r
+	#mkdir -p $(OBJDIR)/modules
 	
 S4_LIBOBJS = \
 	$(OBJDIR)/S4k/S4.o \
@@ -99,7 +146,29 @@ S4_LIBOBJS = \
 	$(OBJDIR)/S4k/sort.o \
 	$(OBJDIR)/S4k/kiss_fft.o \
 	$(OBJDIR)/S4k/kiss_fftnd.o \
-	$(OBJDIR)/S4k/cubature.o \
+	$(OBJDIR)/S4k/cubature.o 
+	#$(OBJDIR)/S4k/Interpolator.o \
+	#$(OBJDIR)/S4k/SpectrumSampler.o \
+	#$(OBJDIR)/S4k/convert.o
+
+TESTS = \
+	$(OBJDIR)/tests/test_api.o
+
+#S4r_LIBOBJS = \
+	#$(OBJDIR)/S4r/Material.o \
+	#$(OBJDIR)/S4r/LatticeGridRect.o \
+	#$(OBJDIR)/S4r/LatticeGridArb.o \
+	#$(OBJDIR)/S4r/POFF2Mesh.o \
+	#$(OBJDIR)/S4r/PeriodicMesh.o \
+	#$(OBJDIR)/S4r/Shape.o \
+	#$(OBJDIR)/S4r/Simulation.o \
+	#$(OBJDIR)/S4r/Layer.o \
+	#$(OBJDIR)/S4r/Pseudoinverse.o \
+	#$(OBJDIR)/S4r/Eigensystems.o \
+	#$(OBJDIR)/S4r/IRA.o \
+	#$(OBJDIR)/S4r/intersection.o \
+	#$(OBJDIR)/S4r/predicates.o \
+	#$(OBJDIR)/S4r/periodic_off2.o
 
 ifndef LAPACK_LIB
   S4_LIBOBJS += $(OBJDIR)/S4k/Eigensystems.o
@@ -107,6 +176,11 @@ endif
 
 $(S4_LIBNAME): objdir $(S4_LIBOBJS)
 	$(AR) crvs $@ $(S4_LIBOBJS)
+
+$(OBJDIR)/tests/test_api.o: tests/C_api/test_api.c objdir $(S4_LIBOBJS) $(S4_LIBNAME)
+		$(CXX) -g $(CFLAGS) $(CPPFLAGS) $< -o $@ $(S4_LIBNAME) $(LIBS) 
+#$(S4r_LIBNAME): objdir $(S4r_LIBOBJS)
+	#$(AR) crvs $@ $(S4r_LIBOBJS)
 
 $(OBJDIR)/S4k/S4.o: S4/S4.cpp
 	$(CXX) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
@@ -151,11 +225,10 @@ $(OBJDIR)/S4k/cubature.o: S4/cubature.c
 $(OBJDIR)/S4k/Eigensystems.o: S4/RNP/Eigensystems.cpp
 	$(CXX) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
-#### Python extension
+	
 
-S4_pyext: objdir $(S4_LIBNAME)
-	sh gensetup.py.sh $(OBJDIR) $(S4_LIBNAME) "$(LIBS)"
-	pip3 install --upgrade ./
+tests: $(TESTS) $(S4_LIBNAME)
+	echo "Tests under build/tests"
 
 clean:
 	rm -rf $(OBJDIR)

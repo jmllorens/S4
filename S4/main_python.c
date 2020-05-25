@@ -1430,6 +1430,61 @@ static PyObject *S4Sim_GetFields(S4Sim *self, PyObject *args, PyObject *kwds){
 	);
 }
 
+static PyObject *S4Sim_GetFieldsByN(S4Sim *self, PyObject *args, PyObject *kwds){
+    int ret;
+    double r[3];
+    double *Efields, *Hfields;
+	if(!PyArg_ParseTuple(args, "ddd:GetFields", &r[0], &r[1], &r[2])){ return NULL; }
+
+	const size_t n = (&self->S)->n_G;
+    Efields = (double*)malloc(sizeof(double) *2*3 * n);
+    Hfields = (double*)malloc(sizeof(double) *2*3 * n);
+
+	ret = Simulation_GetFieldByN(&(self->S), r, Efields, Hfields);
+    ret = 0;
+
+	if(0 != ret){
+		HandleSolutionErrorCode("GetFields", ret);
+		return NULL;
+	}
+
+    double *F[2] = {Efields, Hfields};
+    long dumA = 0;
+    long dumB = 0;
+    double fi,fj;
+    size_t i = 0;
+    int k = 0;
+    int i3 = 0;
+    PyObject *rv = PyTuple_New(2);
+    for(k = 0; k < 2; ++k){
+        PyObject *pk = PyTuple_New(n);
+        PyTuple_SetItem(rv, k, pk);
+        for(i = 0; i < n; ++i){
+            PyObject *pi = PyTuple_New(3);
+            PyTuple_SetItem(pk, i, pi);
+            for(i3 = 0; i3 < 3; ++i3){
+                // I rememeber now why I hate C
+                dumA = (2*3)*i+i3 ;
+                dumB = (2*3)*i+i3+3;
+                fi = F[k][dumA];
+                fj = F[k][dumB];
+                fflush(stdout); 
+                PyTuple_SetItem(pi, i3, 
+                                PyComplex_FromDoubles(
+                                /*F[k][2*(3*(i*n)+i3)+0],*/
+                                /*F[k][2*(3*(i*n)+i3)+1]));*/
+                                fi,
+                                fj));
+
+                    }
+                }
+            }
+    free(Efields);
+    free(Hfields);
+    return rv;
+    
+}
+
 static PyObject *S4Sim_GetFieldsOnGrid(S4Sim *self, PyObject *args, PyObject *kwds){
 	int i, j, ret;
 	static char *kwlist[] = { "z", "NumSamples", "Format", "BaseFilename", NULL };
@@ -1921,6 +1976,7 @@ static PyMethodDef S4Sim_methods[] = {
 	{"GetHField"				, (PyCFunction)S4Sim_GetHField, METH_VARARGS, PyDoc_STR("GetHField(x,y,z) -> (Tuple)")},
 	*/
 	{"GetFields"				, (PyCFunction)S4Sim_GetFields, METH_VARARGS, PyDoc_STR("GetFields(x,y,z) -> (Tuple,Tuple)")},
+	{"GetFieldsByN"				, (PyCFunction)S4Sim_GetFieldsByN, METH_VARARGS, PyDoc_STR("GetFieldsByN(x,y,z) -> (Tuple,Tuple)")},
 	{"GetFieldsOnGrid"			, (PyCFunction)S4Sim_GetFieldsOnGrid, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetFieldsOnGrid(z,nsamples,format,filename) -> Tuple")},
 	{"GetSMatrixDeterminant"	, (PyCFunction)S4Sim_GetSMatrixDeterminant, METH_NOARGS, PyDoc_STR("GetSMatrixDeterminant() -> Tuple")},
 	{"GetSMatrix"			    , (PyCFunction)S4Sim_GetSMatrix, METH_VARARGS | METH_KEYWORDS, PyDoc_STR("GetSMatrix(from,to) -> Tuple")},

@@ -387,6 +387,7 @@ int Simulation_GetEpsilon(Simulation *S, const double r[3], double eps[2]); // e
 int Simulation_GetSMatrixDeterminant(Simulation *S, double rmant[2], double *base, int *expo);
 int Simulation_GetSMatrixD(Simulation *S, int from, int to, double *M); 
 
+int Simulation_GetFieldByN(Simulation *S, const double r[3], double *fE, double *fH);
 #ifdef __cplusplus
 }
 #endif

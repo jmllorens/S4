@@ -8,9 +8,9 @@ import platform
 
 if platform.system() == 'Linux':
     libs = ['S4', 'stdc++']
-    libs.extend([lib[2::] for lib in '-lblas -llapack -lfftw3 '.split()])
+    libs.extend([lib[2::] for lib in '-lblas -llapack '.split()])
     extra_link_args = ['./build/libS4.a']
-    Makefile='Makefile.linux' 
+    Makefile='Makefile' 
 
 elif platform.system() =='Darwin':
     if int(platform.mac_ver()[0].split('.')[1]) >= 14:
@@ -32,7 +32,7 @@ S4module = setuptools.extension.Extension('S4B',
                       library_dirs = ['./build'],
                       # extra_link_args = ['./build/libS4.a'],
                       extra_link_args = extra_link_args,
-                      extra_compile_args = ['-std=gnu99'],)
+                      extra_compile_args = ['-std=gnu99', '-g'],)
 
 S4module.Makefile=Makefile
 

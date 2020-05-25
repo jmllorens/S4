@@ -1636,3 +1636,102 @@ void GetLayerZIntegral(
 		rcwa_free(f);
 	}
 }
+
+
+void GetFieldAtPointByN(
+	size_t n, // glist.n
+	const double *kx,
+	const double *ky,
+	std::complex<double> omega,
+	const std::complex<double> *q, // length 2*glist.n
+	const std::complex<double> *kp, // size (2*glist.n)^2 (k-parallel matrix)
+	const std::complex<double> *phi, // size (2*glist.n)^2
+	const std::complex<double> *epsilon_inv, // size (glist.n)^2, non NULL for efield != NULL
+	int epstype,
+	const std::complex<double> *ab, // length 4*glist.n
+	const double r[2], // coordinates within layer
+	std::complex<double> *efield,
+	std::complex<double> *hfield,
+	std::complex<double> *work // 8*n2
+){
+	const std::complex<double> z_zero(0.);
+	const std::complex<double> z_one(1.);
+	const size_t n2 = 2*n;
+
+	std::complex<double> *eh = work;
+	if(NULL == work){
+		eh = (std::complex<double>*)rcwa_malloc(sizeof(std::complex<double>) * 8*n2);
+	}
+
+	GetInPlaneFieldVector(n, kx, ky, omega, q, epsilon_inv, epstype, kp, phi, ab, eh);
+	const std::complex<double> *hx  = &eh[3*n2+0];
+	const std::complex<double> *hy  = &eh[3*n2+n];
+	const std::complex<double> *ney = &eh[4*n2+0];
+	const std::complex<double> *ex  = &eh[4*n2+n];
+
+
+	if(NULL != efield && NULL != epsilon_inv){
+		for(size_t i = 0; i < n; ++i){
+			eh[i] = (ky[i]*hx[i] - kx[i]*hy[i]);
+		}
+		if(EPSILON2_TYPE_BLKDIAG1_SCALAR == epstype || EPSILON2_TYPE_BLKDIAG2_SCALAR == epstype){
+			RNP::TBLAS::Scale(n, epsilon_inv[0], eh,1);
+			RNP::TBLAS::Copy(n, eh,1, &eh[n], 1);
+		}else{
+			RNP::TBLAS::MultMV<'N'>(n,n, z_one,epsilon_inv,n, eh,1, z_zero,&eh[n],1);
+		}
+	}
+
+	std::complex<double> *fE; 
+	std::complex<double> *fH; 
+    fE = (std::complex<double>*)rcwa_malloc(sizeof(std::complex<double>) * 3 * n);
+    fH = (std::complex<double>*)rcwa_malloc(sizeof(std::complex<double>) * 3 * n);
+	//fE[0] = 0;
+	//fE[1] = 0;
+	//fE[2] = 0;
+	//fH[0] = 0;
+	//fH[1] = 0;
+	//fH[2] = 0;
+	for(size_t i = 0; i < n; i++){
+		const double theta = (kx[i]*r[0] + ky[i]*r[1]);
+		const std::complex<double> phase(cos(theta),sin(theta));
+        //we use the loop to initialize each
+        fE[i*3 + 0] = 0.;
+        fE[i*3 + 1] = 0.;
+        fE[i*3 + 2] = 0.;
+        fH[i*3 + 0] = 0.;
+        fH[i*3 + 1] = 0.;
+        fH[i*3 + 2] = 0.;
+		fH[i*3 + 0] = hx[i]*phase;
+		fH[i*3 + 1] = hy[i]*phase;
+		fE[i*3 + 0] = ex[i]*phase;
+		fE[i*3 + 1] = -1.0 * ney[i]*phase;
+		fH[i*3 + 2] = (kx[i] * -ney[i] - ky[i] * ex[i]) * (phase / omega);
+		fE[i*3 + 2] = eh[n+i] * (phase / omega);
+	}
+
+	if(NULL != efield && NULL != epsilon_inv){
+        for (size_t i=0; i<n; i++){
+            efield[i*3 + 0] = fE[i*3 + 0];
+            efield[i*3 + 1] = fE[i*3 + 1];
+            efield[i*3 + 2] = fE[i*3 + 2];
+        }
+	}
+	if(NULL != hfield){
+        for (size_t i=0; i<n; i++){
+            hfield[i*3 + 0] = fH[i*3 + 0];
+            hfield[i*3 + 1] = fH[i*3 + 1];
+            hfield[i*3 + 2] = fH[i*3 + 2];
+        }
+	}
+
+    fflush(stdout);
+    rcwa_free(fE);// Maybe?
+    rcwa_free(fH);// Maybe?
+	if(NULL == work){
+		rcwa_free(eh);
+        rcwa_free(fE);// Maybe?
+        rcwa_free(fH);// Maybe?
+	}
+}
+
