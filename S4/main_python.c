@@ -1658,7 +1658,7 @@ static PyObject *S4Sim_GetSMatrix(S4Sim *self, PyObject *args, PyObject *kwds){
     double *M;
     M = (double*)malloc(sizeof(double)*n4*n4*2);
     
-    ret = Simulation_GetSMatrixD(&(self->S), from, to, M);
+    ret = Simulation_GetSMatrix(&(self->S), from, to, M);
 	if(0 != ret){
 		//HandleSolutionErrorCode("GetSMatrix", ret);
 		return NULL;

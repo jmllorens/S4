@@ -2934,7 +2934,7 @@ int Simulation_GetSMatrix(Simulation *S, int from, int to, std::complex<double> 
 
 
 //Pass to double for Python
-int Simulation_GetSMatrixD(Simulation *S, int from, int to, double *Md){
+int Simulation_GetSMatrix(Simulation *S, int from, int to, double *Md){
     int ret;
 
 	const size_t n4 = 4*S->n_G;
