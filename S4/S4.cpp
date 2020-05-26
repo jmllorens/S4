@@ -2947,7 +2947,101 @@ int Simulation_GetSMatrixD(Simulation *S, int from, int to, double *Md){
              Md[2*(i+j*n4) + 0] = M[(i+j*n4)].real();
              Md[2*(i+j*n4) + 1] = M[(i+j*n4)].imag();
     }}
-    S4_TRACE("< Simulation_GetSmatrixD\n")
+    S4_TRACE("< Simulation_GetSmatrixD\n");
     S4_free(M);
     return 0;
+}
+
+int Simulation_GetFieldByN(Simulation *S, const double r[3], double *fE, double *fH){
+	S4_TRACE("> Simulation_GetField(S=%p, r=%p (%f,%f,%f), fE=%p, fH=%p)\n",
+		S, r, (NULL == r ? 0 : r[0]), (NULL == r ? 0 : r[1]), (NULL == r ? 0 : r[2]), fE, fH);
+	if(NULL == S){
+		S4_TRACE("< Simulation_GetFieldbyN (failed; S == NULL)\n");
+		return -1;
+	}
+	if(NULL == r){
+		S4_TRACE("< Simulation_GetFieldbyN (failed; r == NULL)\n");
+		return -2;
+	}
+	if(NULL == fE && NULL == fH){
+		S4_TRACE("< Simulation_GetFieldbyN (early exit; fE and fH are NULL)\n");
+		return 0;
+	}
+
+	const size_t n =  S->n_G;
+	const size_t n2 = 2*S->n_G;
+	const size_t n3 = 3*S->n_G;
+	const size_t n4 = 2*n2;
+
+	Layer *L = S->layer;
+	double dz = r[2];
+	{
+		double z = 0;
+		while(NULL != L && r[2] > z+L->thickness){
+			z += L->thickness;
+			dz -= L->thickness;
+			if(NULL == L->next){ break; }
+			L = L->next;
+		}
+	}
+	if(NULL == L){
+		S4_TRACE("< Simulation_GetFieldbyN (failed; no layers found)\n");
+		return 14;
+	}
+//fprintf(stderr, "(%f,%f,%f) in %s: dz = %f\n", r[0], r[1], r[2], L->name, dz);
+
+	LayerBands *Lbands;
+	LayerSolution *Lsoln;
+	int ret = Simulation_GetLayerSolution(S, L, &Lbands, &Lsoln);
+	if(0 != ret){
+		S4_TRACE("< Simulation_GetFieldbyN (failed; Simulation_GetLayerSolution returned %d)\n", ret);
+		return ret;
+	}
+
+	std::complex<double> *ab = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>) * (n4+8*n2));
+	if(NULL == ab){
+		S4_TRACE("< Simulation_GetFieldbyN (failed; allocation failed)\n");
+		return 1;
+	}
+	std::complex<double> *work = ab + n4;
+
+	RNP::TBLAS::Copy(n4, Lsoln->ab,1, ab,1);
+	//RNP::IO::PrintVector(n4, ab, 1);
+	TranslateAmplitudes(S->n_G, Lbands->q, L->thickness, dz, ab);
+	std::complex<double> *efield, *hfield;
+    efield = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>)* 3 * n);
+    hfield = (std::complex<double>*)S4_malloc(sizeof(std::complex<double>)* 3 * n);
+
+    GetFieldAtPointByN(
+        S->n_G, S->solution->kx, S->solution->ky, std::complex<double>(S->omega[0],S->omega[1]),
+        Lbands->q, Lbands->kp, Lbands->phi, Lbands->Epsilon_inv, Lbands->epstype,
+        ab, r, (NULL != fE ? efield : NULL) , (NULL != fH ? hfield : NULL), work);
+
+	if(NULL != fE){
+        for (size_t i=0; i<n; i++){
+            fE[i*6 + 0] = efield[i*3 + 0].real();
+            fE[i*6 + 1] = efield[i*3 + 1].real();
+            fE[i*6 + 2] = efield[i*3 + 2].real();
+            fE[i*6 + 3] = efield[i*3 + 0].imag();
+            fE[i*6 + 4] = efield[i*3 + 1].imag();
+            fE[i*6 + 5] = efield[i*3 + 2].imag();
+        }
+	}
+	if(NULL != fH){
+        for (size_t i=0; i<n; i++){
+            fH[i*6 + 0] = hfield[i*3 + 0].real();
+            fH[i*6 + 1] = hfield[i*3 + 1].real();
+            fH[i*6 + 2] = hfield[i*3 + 2].real();
+            fH[i*6 + 3] = hfield[i*3 + 0].imag();
+            fH[i*6 + 4] = hfield[i*3 + 1].imag();
+            fH[i*6 + 5] = hfield[i*3 + 2].imag();
+        }
+	}
+    S4_free(ab);
+    S4_free(efield);
+    S4_free(hfield);
+    fflush(stdout);
+
+	S4_TRACE("< Done Simulation_GetFieldbyN\n");
+	return 0;
 }

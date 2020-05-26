@@ -609,4 +609,20 @@ void GetLayerZIntegral(
 	std::complex<double> *work
 );
 
+void GetFieldAtPointByN(
+	size_t n, // glist.n
+	const double *kx,
+	const double *ky,
+	std::complex<double> omega,
+	const std::complex<double> *q, // length 2*glist.n
+	const std::complex<double> *kp, // size (2*glist.n)^2 (k-parallel matrix)
+	const std::complex<double> *phi, // size (2*glist.n)^2
+	const std::complex<double> *epsilon_inv, // size (glist.n)^2, non NULL for efield != NULL
+	int epstype,
+	const std::complex<double> *ab, // length 4*glist.n
+	const double r[2], // coordinates within layer
+	std::complex<double> *efield,
+	std::complex<double> *hfield,
+	std::complex<double> *work // 8*n2
+);
 #endif // _RCWA_H_
